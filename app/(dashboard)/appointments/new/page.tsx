@@ -4,14 +4,14 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import type { Client } from "@/lib/types";
-import { Search, ChevronDown, Calendar as CalendarIcon } from "lucide-react";
+import { Search, ChevronDown, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-// 08:00 → 20:00 in 30-min increments (25 slots)
-const TIME_OPTIONS = Array.from({ length: 25 }, (_, i) => {
-  const mins = 8 * 60 + i * 30;
+// 08:00 → 20:00 in 15-min increments (49 slots)
+const TIME_OPTIONS = Array.from({ length: 49 }, (_, i) => {
+  const mins = 8 * 60 + i * 15;
   return `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
 });
 
@@ -32,17 +32,16 @@ function formatDateDisplay(dateStr: string): string {
 const inputCls =
   "w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-sm text-white placeholder-[#555555] focus:outline-none focus:ring-2 focus:ring-[#e8502a] focus:border-transparent";
 
-// Inject dark theme CSS vars so shadcn Calendar picks up orange accent without
-// touching globals.css or any other component.
+// Light-theme CSS vars scoped to the Calendar popover so dates are clearly visible
 const calendarVars = {
   "--primary": "#e8502a",
   "--primary-foreground": "#ffffff",
-  "--accent": "#252525",
-  "--accent-foreground": "#ffffff",
-  "--muted-foreground": "#888888",
-  "--background": "#1a1a1a",
-  "--foreground": "#ffffff",
-  "--border": "#2a2a2a",
+  "--accent": "#f5f5f5",
+  "--accent-foreground": "#111111",
+  "--muted-foreground": "#777777",
+  "--background": "#ffffff",
+  "--foreground": "#111111",
+  "--border": "#e5e5e5",
   "--ring": "#e8502a",
 } as React.CSSProperties;
 
@@ -79,13 +78,16 @@ export default function NewAppointmentPage() {
   const [date, setDate] = useState("");
   const [dateOpen, setDateOpen] = useState(false);
   const [time, setTime] = useState("");
+  const [timeOpen, setTimeOpen] = useState(false);
+  const timeRef = useRef<HTMLDivElement>(null);
+  const timeListRef = useRef<HTMLUListElement>(null);
+
   const [serviceName, setServiceName] = useState("");
   const [notes, setNotes] = useState("");
 
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Disable dates before today in the calendar
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
@@ -104,10 +106,21 @@ export default function NewAppointmentPage() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setClientOpen(false);
       }
+      if (timeRef.current && !timeRef.current.contains(e.target as Node)) {
+        setTimeOpen(false);
+      }
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  // Scroll selected time slot into view when the dropdown opens
+  useEffect(() => {
+    if (timeOpen && time && timeListRef.current) {
+      const selected = timeListRef.current.querySelector<HTMLElement>('[data-selected="true"]');
+      if (selected) selected.scrollIntoView({ block: "nearest" });
+    }
+  }, [timeOpen]); // eslint-disable-line
 
   const filteredClients = clients.filter((c) =>
     c.name.toLowerCase().includes(clientSearch.toLowerCase())
@@ -124,7 +137,6 @@ export default function NewAppointmentPage() {
     setSaving(true);
 
     const scheduledAt = new Date(`${date}T${time}`).toISOString();
-
     const { data: { user } } = await supabase.auth.getUser();
 
     const { error: insertError } = await supabase.from("appointments").insert({
@@ -202,9 +214,7 @@ export default function NewAppointmentPage() {
                 </div>
                 <ul className="max-h-48 overflow-y-auto">
                   {filteredClients.length === 0 ? (
-                    <li className="px-3 py-2 text-sm text-[#555555]">
-                      No clients found.
-                    </li>
+                    <li className="px-3 py-2 text-sm text-[#555555]">No clients found.</li>
                   ) : (
                     filteredClients.map((c) => (
                       <li key={c.id}>
@@ -217,9 +227,7 @@ export default function NewAppointmentPage() {
                           }}
                           className={cn(
                             "w-full text-left px-3 py-2 text-sm hover:bg-[#222222] transition-colors",
-                            selectedClient?.id === c.id
-                              ? "text-white font-medium"
-                              : "text-[#888888]"
+                            selectedClient?.id === c.id ? "text-white font-medium" : "text-[#888888]"
                           )}
                         >
                           <span>{c.name}</span>
@@ -247,7 +255,7 @@ export default function NewAppointmentPage() {
         {/* Date + Time */}
         <div className="grid grid-cols-2 gap-4">
 
-          {/* Date — shadcn Popover + Calendar */}
+          {/* Date — light-theme Calendar in a Popover */}
           <Field label="Date" required>
             <Popover open={dateOpen} onOpenChange={setDateOpen}>
               <PopoverTrigger asChild>
@@ -264,7 +272,7 @@ export default function NewAppointmentPage() {
               </PopoverTrigger>
               <PopoverContent
                 align="start"
-                className="w-auto p-0 bg-[#1a1a1a] border-[#2a2a2a] shadow-xl"
+                className="w-auto p-0 bg-white border-[#e5e5e5] shadow-xl"
               >
                 <div style={calendarVars}>
                   <Calendar
@@ -278,32 +286,61 @@ export default function NewAppointmentPage() {
                     }}
                     disabled={{ before: todayStart }}
                     autoFocus
+                    classNames={{
+                      today: "ring-1 ring-[#e8502a] rounded-md",
+                    }}
                   />
                 </div>
               </PopoverContent>
             </Popover>
           </Field>
 
-          {/* Time — styled select, 08:00–20:00 in 30-min steps */}
+          {/* Time — custom scrollable dropdown, 08:00–20:00 in 15-min steps */}
           <Field label="Time" required>
-            <select
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className={cn(
-                inputCls,
-                !time && "text-[#555555]",
-                "[&>option]:bg-[#1a1a1a] [&>option]:text-white"
+            <div className="relative" ref={timeRef}>
+              <button
+                type="button"
+                onClick={() => setTimeOpen((o) => !o)}
+                className={cn(
+                  inputCls,
+                  "flex items-center justify-between text-left",
+                  time ? "text-white" : "text-[#555555]"
+                )}
+              >
+                {time || "Pick a time"}
+                <Clock className="w-4 h-4 text-[#555555] shrink-0" />
+              </button>
+
+              {timeOpen && (
+                <div className="absolute z-10 mt-1 w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-xl overflow-hidden">
+                  <ul
+                    ref={timeListRef}
+                    className="max-h-[240px] overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#3a3a3a] [&::-webkit-scrollbar-track]:bg-transparent"
+                  >
+                    {TIME_OPTIONS.map((t) => (
+                      <li key={t}>
+                        <button
+                          type="button"
+                          data-selected={time === t ? "true" : undefined}
+                          onClick={() => {
+                            setTime(t);
+                            setTimeOpen(false);
+                          }}
+                          className={cn(
+                            "w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer",
+                            time === t
+                              ? "bg-[#e8502a] text-white"
+                              : "text-[#888888] hover:bg-[#e8502a] hover:text-white"
+                          )}
+                        >
+                          {t}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
-            >
-              <option value="" disabled>
-                Pick a time
-              </option>
-              {TIME_OPTIONS.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
+            </div>
           </Field>
         </div>
 

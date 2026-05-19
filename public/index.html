@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -233,23 +233,13 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    padding: 6px 6px 6px 14px;
+    padding: 6px 16px;
     border-radius: 999px;
     border: 1px solid var(--line-2);
     background: rgba(255,255,255,0.02);
     font-size: 13px;
     color: var(--ink-dim);
     backdrop-filter: blur(8px);
-  }
-  .pill b {
-    font-weight: 500;
-    color: var(--ink);
-    font-size: 12px;
-    padding: 3px 9px;
-    border-radius: 999px;
-    background: var(--orange-soft);
-    color: #ffb59a;
-    letter-spacing: 0.02em;
   }
   .pill .dot {
     width: 6px; height: 6px; border-radius: 999px; background: var(--orange);
@@ -274,7 +264,7 @@
     margin: 28px auto 0;
     color: var(--ink-dim);
     font-size: clamp(17px, 1.5vw, 21px);
-    max-width: 58ch;
+    max-width: 52ch;
     line-height: 1.5;
     text-wrap: pretty;
   }
@@ -554,49 +544,6 @@
     .float-card { display: none; }
   }
 
-  /* ---------- logo strip ---------- */
-  .logos {
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    padding: 40px 0;
-    margin-top: 80px;
-  }
-  .logos-inner {
-    display: flex;
-    align-items: center;
-    gap: clamp(24px, 5vw, 60px);
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-  .logos-label {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-mute);
-    flex-shrink: 0;
-  }
-  .logos-row {
-    display: flex;
-    gap: clamp(28px, 5vw, 64px);
-    align-items: center;
-    flex-wrap: wrap;
-    flex: 1;
-    justify-content: flex-end;
-  }
-  .logos-row .lg {
-    color: var(--ink-dim);
-    opacity: 0.75;
-    transition: opacity .2s ease;
-    font-weight: 500;
-    font-size: 17px;
-    letter-spacing: -0.02em;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .logos-row .lg:hover { opacity: 1; }
-
   /* ---------- sections ---------- */
   section.bay { padding: clamp(80px, 11vw, 140px) 0; position: relative; }
   .bay-header {
@@ -611,76 +558,39 @@
     .bay-header { grid-template-columns: 1fr; gap: 24px; }
   }
 
-  /* ---------- pain section ---------- */
-  .pain {
+  /* ---------- features ---------- */
+  .features {
     background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
     border-top: 1px solid var(--line);
   }
-  .pain-grid {
+  .feat-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
   }
-  @media (max-width: 880px) {
-    .pain-grid { grid-template-columns: 1fr; }
-  }
-  .pain-card {
+  @media (max-width: 880px) { .feat-grid { grid-template-columns: 1fr; } }
+  .feat-card {
     background: linear-gradient(180deg, var(--card) 0%, var(--bg-3) 100%);
     border: 1px solid var(--line);
-    border-radius: var(--r-xl);
-    padding: 32px;
-    position: relative;
-    overflow: hidden;
-    min-height: 360px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    border-radius: var(--r-lg);
+    padding: 28px;
     transition: border-color .25s ease, transform .25s ease;
   }
-  .pain-card:hover { border-color: var(--line-2); transform: translateY(-2px); }
-  .pain-card::before {
-    content: '';
-    position: absolute;
-    top: -1px; left: -1px; right: -1px;
-    height: 60%;
-    background: radial-gradient(80% 100% at 50% 0%, rgba(232,80,42,0.10), transparent 70%);
-    pointer-events: none;
-    border-top-left-radius: var(--r-xl);
-    border-top-right-radius: var(--r-xl);
+  .feat-card:hover { border-color: var(--line-2); transform: translateY(-2px); }
+  .feat-ico {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--orange-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--orange-2);
+    margin-bottom: 16px;
   }
-  .pain-stat {
-    font-size: clamp(56px, 6.5vw, 88px);
-    line-height: 1;
-    letter-spacing: -0.04em;
-    font-weight: 500;
-    margin-bottom: 8px;
-    background: linear-gradient(180deg, #fff 0%, #f5efe6 50%, rgba(245,239,230,0.5) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-  .pain-stat .unit {
-    color: var(--orange);
-    -webkit-text-fill-color: var(--orange);
-  }
-  .pain-card .title {
-    font-size: 20px;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    margin-bottom: 8px;
-  }
-  .pain-card .desc {
-    color: var(--ink-dim);
-    font-size: 15px;
-    line-height: 1.5;
-  }
-  .pain-card .source {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--ink-mute);
-    margin-top: 16px;
-    letter-spacing: 0.04em;
-  }
+  .feat-ico svg { width: 18px; height: 18px; }
+  .feat-card .title { font-size: 16px; font-weight: 500; letter-spacing: -0.015em; margin-bottom: 8px; color: var(--ink); }
+  .feat-card .desc { color: var(--ink-dim); font-size: 14px; line-height: 1.6; }
 
   /* ---------- how it works ---------- */
   .hiw {
@@ -753,16 +663,6 @@
   .vis-knob .v span { padding: 3px 8px; border-radius: 999px; background: #221d19; font-family: var(--font-mono); font-size: 10.5px; }
   .vis-knob .v span.on { background: var(--orange); color: #fff; }
 
-  .vis-chart { position: relative; height: 130px; padding-top: 18px; }
-  .vis-chart .bars { display: flex; align-items: flex-end; gap: 10px; height: 100%; }
-  .vis-chart .bar {
-    flex: 1; background: linear-gradient(180deg, rgba(232,80,42,.85), rgba(232,80,42,.4));
-    border-radius: 4px 4px 0 0;
-    position: relative;
-  }
-  .vis-chart .bar.dim { background: #2a2521; }
-  .vis-chart .labels { display: flex; gap: 10px; margin-top: 8px; }
-  .vis-chart .labels span { flex: 1; text-align: center; font-size: 10.5px; color: var(--ink-mute); font-family: var(--font-mono); }
   .vis-cap { font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
   .vis-cap b { color: var(--ink); font-weight: 500; }
 
@@ -861,83 +761,6 @@
   .price-card ul li svg { flex-shrink: 0; margin-top: 3px; color: var(--orange); width: 14px; height: 14px; }
   .price-card ul li b { color: var(--ink); font-weight: 500; }
 
-  /* ---------- testimonials ---------- */
-  .test {
-    border-top: 1px solid var(--line);
-    overflow: hidden;
-  }
-  .test-grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 16px;
-  }
-  .test-card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: var(--r-xl);
-    padding: 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    transition: border-color .25s ease;
-  }
-  .test-card:hover { border-color: var(--line-2); }
-  .test-card.big { grid-column: span 6; }
-  .test-card.med { grid-column: span 6; }
-  .test-card.sm  { grid-column: span 4; }
-  @media (max-width: 980px) {
-    .test-card.big, .test-card.med, .test-card.sm { grid-column: span 12; }
-  }
-  .quote {
-    font-size: clamp(18px, 1.7vw, 22px);
-    line-height: 1.4;
-    letter-spacing: -0.015em;
-    color: var(--ink);
-    text-wrap: pretty;
-  }
-  .quote.big {
-    font-size: clamp(22px, 2.4vw, 30px);
-    line-height: 1.3;
-    font-weight: 400;
-  }
-  .quote .hl { background: linear-gradient(120deg, transparent 0 5%, var(--orange-soft) 5% 95%, transparent 95% 100%); padding: 2px 0; }
-  .who {
-    display: flex; gap: 12px; align-items: center;
-    margin-top: auto;
-  }
-  .who .av {
-    width: 40px; height: 40px; border-radius: 999px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 500; color: #fff;
-    letter-spacing: -0.02em;
-  }
-  .who .who-info { line-height: 1.3; }
-  .who .nm { font-size: 14px; font-weight: 500; }
-  .who .ti { font-size: 13px; color: var(--ink-mute); }
-  .stat-strip {
-    display: flex; gap: 16px; margin-top: 10px;
-    flex-wrap: wrap;
-  }
-  .stat-strip .s {
-    flex: 1;
-    min-width: 110px;
-    padding: 14px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: rgba(255,255,255,.02);
-  }
-  .stat-strip .s b {
-    display: block;
-    font-size: 22px;
-    letter-spacing: -0.025em;
-    font-weight: 500;
-    color: var(--orange);
-  }
-  .stat-strip .s span {
-    font-size: 12px; color: var(--ink-mute); font-family: var(--font-mono);
-    letter-spacing: 0.04em; text-transform: uppercase;
-  }
-
   /* ---------- CTA footer ---------- */
   .cta {
     border-top: 1px solid var(--line);
@@ -994,13 +817,13 @@
   }
   .foot {
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr;
     gap: 40px;
     margin-bottom: 60px;
   }
   @media (max-width: 880px) { .foot { grid-template-columns: 1fr 1fr; } }
   .foot-brand .logo { font-size: 21px; }
-  .foot-brand p { color: var(--ink-mute); font-size: 14px; max-width: 30ch; margin: 16px 0 0; line-height: 1.5; }
+  .foot-brand p { color: var(--ink-mute); font-size: 14px; max-width: 36ch; margin: 16px 0 0; line-height: 1.5; }
   .foot h4 {
     font-family: var(--font-mono);
     font-size: 12px;
@@ -1024,9 +847,6 @@
     font-size: 13px;
     color: var(--ink-mute);
   }
-  .foot-bottom .soc { display: flex; gap: 16px; }
-  .foot-bottom .soc a { color: var(--ink-dim); transition: color .15s ease; }
-  .foot-bottom .soc a:hover { color: var(--ink); }
 
   /* ---------- wordmark big ---------- */
   .wordmark {
@@ -1069,11 +889,9 @@
   <div class="wrap nav-inner">
     <a href="#" class="logo"><b>NoShow</b><i></i></a>
     <nav class="nav-links">
-      <a href="#pain">Why</a>
       <a href="#how">How it works</a>
+      <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
-      <a href="#customers">Customers</a>
-      <a href="#">Changelog</a>
     </nav>
     <div class="nav-right">
       <a href="/login" class="btn btn-ghost">Sign in</a>
@@ -1088,18 +906,17 @@
     <div class="hero-top">
       <div class="pill">
         <span class="dot"></span>
-        Now sending WhatsApp + iMessage reminders
-        <b>NEW</b>
+        14-day free trial &middot; no credit card required
       </div>
     </div>
 
     <h1>
-      Appointment reminders<br/>
-      that <span class="serif accent">actually</span> show up.
+      Stop losing money<br/>
+      to <span class="serif accent">no-shows.</span>
     </h1>
 
     <p class="hero-sub">
-      NoShow is the SMS reminder system for small service businesses. Cut no-shows by up to 80%, fill last-minute gaps automatically, and stop chasing confirmations by hand.
+      Automatic SMS reminders for small businesses. Clients confirm with one text. Takes 5 minutes to set up.
     </p>
 
     <form class="email-form" onsubmit="handleSignup(event)">
@@ -1118,21 +935,24 @@
     <!-- showcase -->
     <div class="showcase">
       <div class="float-card fc-1">
-        <div class="label">No-shows this month</div>
-        <div class="value">2.1% <span class="delta">↓ 87%</span></div>
+        <div class="label">24h reminder sent</div>
+        <div class="value" style="font-size:18px; align-items:center; gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>
+          <span style="font-size:15px; color:var(--ink);">SMS delivered</span>
+        </div>
+        <div style="font-size:11px; color:var(--ink-mute); margin-top:8px; font-family:var(--font-mono);">Today · 10:00 AM</div>
       </div>
 
       <div class="float-card fc-2">
-        <div class="label">Revenue recovered</div>
-        <div class="value">$11,420 <span class="delta">↑ this wk</span></div>
+        <div class="label">Client reply received</div>
+        <div class="value">YES <span class="delta">✓ confirmed</span></div>
       </div>
 
       <div class="float-card fc-3">
         <div class="label">Channels</div>
         <div class="channels">
           <div class="chan active" title="SMS"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
-          <div class="chan active" title="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.768.967-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884"/></svg></div>
-          <div class="chan" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+          <div class="chan active" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
         </div>
       </div>
 
@@ -1178,12 +998,12 @@
             <div class="sms-time">Today 9:00 AM</div>
             <div class="sms in">
               Hi Maya! Just a reminder you have a <b>cut + color</b> with Chloe tomorrow at <b>2:30 PM</b> at Bloom Hair.
-              Reply <b>YES</b> to confirm or <b>R</b> to reschedule. ✂️
+              Reply <b>YES</b> to confirm or <b>NO</b> to cancel.
             </div>
             <div class="sms-time">Today 9:14 AM</div>
             <div class="sms out">YES</div>
             <div class="sms in">
-              You're all set 🌸 We'll see you tomorrow at 2:30. Reply STOP to opt out.
+              You're all set! We'll see you tomorrow at 2:30 PM. Reply STOP to opt out.
               <small>Sent via NoShow</small>
             </div>
           </div>
@@ -1193,60 +1013,66 @@
   </div>
 </section>
 
-<!-- =================== LOGO STRIP =================== -->
-<div class="logos" id="customers">
-  <div class="wrap logos-inner">
-    <div class="logos-label">Trusted by 4,200+ businesses</div>
-    <div class="logos-row">
-      <span class="lg">◐ Bloom Studio</span>
-      <span class="lg">✦ Forge Athletics</span>
-      <span class="lg">▲ Northgate Dental</span>
-      <span class="lg">◇ Mason &amp; Co.</span>
-      <span class="lg">● Lumen Spa</span>
-      <span class="lg">◆ Roca Pilates</span>
-    </div>
-  </div>
-</div>
-
-<!-- =================== PAIN =================== -->
-<section class="bay pain" id="pain">
+<!-- =================== FEATURES =================== -->
+<section class="bay features" id="features">
   <div class="wrap">
     <div class="bay-header">
       <div>
-        <div class="eyebrow">The problem</div>
-        <h2 style="margin-top:18px">No-shows are quietly bleeding <span class="serif" style="color:var(--orange)">your business dry.</span></h2>
+        <div class="eyebrow">Features</div>
+        <h2 style="margin-top:18px">Everything you need, <span class="serif" style="color:var(--orange)">nothing you don't.</span></h2>
       </div>
       <div class="right">
-        Every empty chair, treatment room, or training slot is gone forever. For a busy salon, that's roughly $40,000 of lost revenue a year — and you're spending hours every week chasing confirmations to prevent it.
+        NoShow does one thing — makes sure your clients show up. Simple, focused, and running in under 5 minutes. No integrations to configure, no calendar to sync.
       </div>
     </div>
 
-    <div class="pain-grid">
-      <div class="pain-card reveal">
-        <div>
-          <div class="pain-stat">23<span class="unit">%</span></div>
-          <div class="title">Industry-average no-show rate</div>
-          <div class="desc">Without automated reminders, nearly one in four bookings disappears — costing the average independent stylist or trainer $400 per missed appointment.</div>
+    <div class="feat-grid">
+      <div class="feat-card reveal">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </div>
-        <div class="source">IBISWorld · 2025 services report</div>
+        <div class="title">Automatic SMS reminders</div>
+        <div class="desc">Reminders go out 24 hours and 2 hours before every appointment. No manual work, no forgetting, no chasing.</div>
       </div>
 
-      <div class="pain-card reveal">
-        <div>
-          <div class="pain-stat">4.2<span class="unit">hrs</span></div>
-          <div class="title">Wasted weekly on confirmations</div>
-          <div class="desc">Calling, texting and DMing clients to confirm appointments steals half a day a week — time you could be billing for, or actually closed.</div>
+      <div class="feat-card reveal">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         </div>
-        <div class="source">NoShow customer survey · n=812</div>
+        <div class="title">Email confirmation on booking</div>
+        <div class="desc">Every new appointment triggers an instant email confirmation with date, time, and service details — automatically.</div>
       </div>
 
-      <div class="pain-card reveal">
-        <div>
-          <div class="pain-stat">$<span style="color:var(--orange);-webkit-text-fill-color:var(--orange);">38k</span></div>
-          <div class="title">Lost per chair, per year</div>
-          <div class="desc">For salons, gyms and clinics, every unfilled slot compounds. The math is brutal — and almost entirely preventable with a 5-minute setup.</div>
+      <div class="feat-card reveal">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         </div>
-        <div class="source">Average across 4,200+ NoShow accounts</div>
+        <div class="title">Two-way SMS replies</div>
+        <div class="desc">Clients reply YES to confirm or NO to cancel. Status updates automatically — no manual dashboard updates needed.</div>
+      </div>
+
+      <div class="feat-card reveal">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <div class="title">Simple no-show dashboard</div>
+        <div class="desc">See all appointments, track confirmed vs cancelled, and monitor your no-show rate over time in one clean view.</div>
+      </div>
+
+      <div class="feat-card reveal">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <div class="title">Custom SMS templates</div>
+        <div class="desc">Write your own reminder message so it sounds like you, not a robot. Use your business name and your tone.</div>
+      </div>
+
+      <div class="feat-card reveal">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="title">14-day free trial</div>
+        <div class="desc">Start sending reminders today. No credit card required. Cancel anytime with one click — no questions asked.</div>
       </div>
     </div>
   </div>
@@ -1258,10 +1084,10 @@
     <div class="bay-header">
       <div>
         <div class="eyebrow">How it works</div>
-        <h2 style="margin-top:18px">Set it up <span class="serif" style="color:var(--orange)">once.</span><br/>Forget it forever.</h2>
+        <h2 style="margin-top:18px">Up and running <span class="serif" style="color:var(--orange)">in minutes.</span></h2>
       </div>
       <div class="right">
-        Most customers are sending reminders within five minutes of signing up. We connect to the calendar you already use, learn your tone, and quietly handle the rest in the background — no Zapier, no spreadsheets, no babysitting.
+        No integrations to configure, no calendar to sync. Add your clients, schedule appointments in the dashboard, and NoShow handles the reminders automatically.
       </div>
     </div>
 
@@ -1269,38 +1095,42 @@
       <div class="step">
         <div class="step-num">/ 01</div>
         <div>
-          <div class="step-title">Connect your calendar.</div>
-          <div class="step-desc">One-click integrations with Google Calendar, Apple Calendar, Calendly, Square Appointments, Acuity, Vagaro, Mindbody and Fresha. We pick up new bookings the moment they appear.</div>
+          <div class="step-title">Add your clients.</div>
+          <div class="step-desc">Add clients one at a time or import a list. Just a name, phone number, and email — that's all NoShow needs to start sending reminders.</div>
         </div>
         <div class="step-visual vis">
-          <div class="vis-cap"><span>Integrations</span><b>8 connected</b></div>
-          <div class="vis-row"><div class="vis-ico" style="background:#4285f4">G</div><span class="nm">Google Calendar</span><span class="pill-sm">Synced</span></div>
-          <div class="vis-row"><div class="vis-ico" style="background:#000">◉</div><span class="nm">Square Appointments</span><span class="pill-sm">Synced</span></div>
-          <div class="vis-row"><div class="vis-ico" style="background:#cf3aa3">A</div><span class="nm">Acuity Scheduling</span><span class="pill-sm">Synced</span></div>
+          <div class="vis-cap"><span>Clients</span><b>3 added</b></div>
+          <div class="vis-row">
+            <div class="vis-ico" style="background:#7e57c2">SM</div>
+            <span class="nm">Sara M.</span>
+            <span class="meta">+1 (555) 0101</span>
+          </div>
+          <div class="vis-row">
+            <div class="vis-ico" style="background:#42a5f5">DK</div>
+            <span class="nm">Devon K.</span>
+            <span class="meta">+1 (555) 0102</span>
+          </div>
+          <div class="vis-row">
+            <div class="vis-ico" style="background:#26a69a">AR</div>
+            <span class="nm">Aria R.</span>
+            <span class="meta">+1 (555) 0103</span>
+          </div>
         </div>
       </div>
 
       <div class="step">
         <div class="step-num">/ 02</div>
         <div>
-          <div class="step-title">Make it sound like you.</div>
-          <div class="step-desc">Choose your timing, tone and channels. Send a friendly nudge 48 hours before, a no-nonsense confirm at 9am day-of, and a "we miss you" if they ghost. Edit any message in plain English.</div>
+          <div class="step-title">Schedule appointments.</div>
+          <div class="step-desc">Set the date, time, and service for each appointment in the NoShow dashboard. Takes about 20 seconds per booking.</div>
         </div>
         <div class="step-visual vis">
-          <div class="vis-cap"><span>Reminder schedule</span><b>Hair & Beauty</b></div>
+          <div class="vis-cap"><span>New appointment</span></div>
           <div class="vis-knobs">
-            <div class="vis-knob"><b>When</b>48h · 24h · 2h
-              <div class="v"><span class="on">48h</span><span class="on">24h</span><span class="on">2h</span><span>15m</span></div>
-            </div>
-            <div class="vis-knob"><b>Channel</b>SMS-first
-              <div class="v"><span class="on">SMS</span><span class="on">WhatsApp</span><span>Email</span></div>
-            </div>
-            <div class="vis-knob"><b>Tone</b>Warm
-              <div class="v"><span>Pro</span><span class="on">Warm</span><span>Playful</span></div>
-            </div>
-            <div class="vis-knob"><b>Language</b>Auto
-              <div class="v"><span class="on">EN</span><span class="on">ES</span><span>FR</span></div>
-            </div>
+            <div class="vis-knob"><b>Client</b><div class="v"><span class="on">Sara M.</span></div></div>
+            <div class="vis-knob"><b>Service</b><div class="v"><span class="on">Haircut</span></div></div>
+            <div class="vis-knob"><b>Date</b><div class="v"><span class="on">May 21</span></div></div>
+            <div class="vis-knob"><b>Time</b><div class="v"><span class="on">2:30 PM</span></div></div>
           </div>
         </div>
       </div>
@@ -1308,37 +1138,25 @@
       <div class="step">
         <div class="step-num">/ 03</div>
         <div>
-          <div class="step-title">We text. They reply. Done.</div>
-          <div class="step-desc">Clients reply YES, R for reschedule, or anything else — NoShow understands it. Confirms get logged. Reschedules go to a one-tap link. Cancellations open the slot back up for your waitlist, automatically.</div>
+          <div class="step-title">Reminders go out automatically.</div>
+          <div class="step-desc">NoShow sends an SMS 24 hours before and again 2 hours before. Clients reply YES to confirm or NO to cancel — and your dashboard updates instantly.</div>
         </div>
         <div class="step-visual vis">
-          <div class="vis-cap"><span>Live · today</span><b>54 sent / 51 confirmed</b></div>
-          <div class="vis-row"><div class="vis-ico" style="background:#26a69a">AR</div><span class="nm">Aria R. · 3:00 PM</span><span class="meta" style="color:#4ade80">YES ✓</span></div>
-          <div class="vis-row"><div class="vis-ico" style="background:#7e57c2">SM</div><span class="nm">Sara M. · 4:30 PM</span><span class="meta" style="color:#4ade80">YES ✓</span></div>
-          <div class="vis-row"><div class="vis-ico" style="background:#ef6c00">DK</div><span class="nm">Devon K. · 5:15 PM</span><span class="meta" style="color:#fbbf24">REBOOK →</span></div>
-        </div>
-      </div>
-
-      <div class="step">
-        <div class="step-num">/ 04</div>
-        <div>
-          <div class="step-title">Watch no-shows fall off a cliff.</div>
-          <div class="step-desc">Most customers see their no-show rate drop below 5% in the first week. We send you a weekly recap with what got booked, what got recovered, and exactly how much money came back.</div>
-        </div>
-        <div class="step-visual vis">
-          <div class="vis-cap"><span>No-show rate · last 6 weeks</span><b style="color:#4ade80">↓ 87%</b></div>
-          <div class="vis-chart">
-            <div class="bars">
-              <div class="bar dim" style="height: 95%"></div>
-              <div class="bar dim" style="height: 88%"></div>
-              <div class="bar" style="height: 42%"></div>
-              <div class="bar" style="height: 28%"></div>
-              <div class="bar" style="height: 18%"></div>
-              <div class="bar" style="height: 12%"></div>
-            </div>
-            <div class="labels">
-              <span>W-5</span><span>W-4</span><span>W-3</span><span>W-2</span><span>W-1</span><span>NOW</span>
-            </div>
+          <div class="vis-cap"><span>Reminder log · today</span><b style="color:#4ade80">2 confirmed</b></div>
+          <div class="vis-row">
+            <div class="vis-ico" style="background:#7e57c2">SM</div>
+            <span class="nm">Sara M. · 24h reminder</span>
+            <span class="meta" style="color:#4ade80">YES ✓</span>
+          </div>
+          <div class="vis-row">
+            <div class="vis-ico" style="background:#42a5f5">DK</div>
+            <span class="nm">Devon K. · 2h reminder</span>
+            <span class="meta" style="color:#4ade80">YES ✓</span>
+          </div>
+          <div class="vis-row">
+            <div class="vis-ico" style="background:#26a69a">AR</div>
+            <span class="nm">Aria R. · 24h reminder</span>
+            <span class="meta" style="color:#fbbf24">NO ✗</span>
           </div>
         </div>
       </div>
@@ -1355,142 +1173,52 @@
         <h2 style="margin-top:18px">Pays for itself <span class="serif" style="color:var(--orange)">in one</span> saved booking.</h2>
       </div>
       <div class="right">
-        Simple monthly pricing, no per-message fees, no setup costs. Switch tiers any time. Annual plans save 20%. SMS + WhatsApp + email included on every plan.
+        Simple monthly pricing. No per-message fees, no setup costs. Switch plans any time. Every plan includes a 14-day free trial — no credit card required.
       </div>
     </div>
 
     <div class="pricing-grid">
       <div class="price-card">
         <div class="tier-head"><div class="tier-name">Solo</div></div>
-        <div class="tier-desc">For independent stylists, trainers and therapists running their own book.</div>
+        <div class="tier-desc">For independent stylists, trainers, and therapists running their own book.</div>
         <div class="price-amt"><span class="cur">$</span><span class="amt">19</span><span class="per">/mo</span></div>
-        <div class="billed">Billed monthly · cancel anytime</div>
+        <div class="billed">14-day free trial · cancel anytime</div>
         <a href="/signup" class="btn btn-lg cta outline">Start free trial</a>
         <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Up to <b>150 appointments</b>/mo</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Up to <b>50 clients</b></span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>SMS + email reminders</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>1 calendar integration</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Two-way reply handling</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Two-way SMS replies</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>1 user</span></li>
         </ul>
       </div>
 
       <div class="price-card featured">
-        <div class="tier-head"><div class="tier-name">Studio</div><div class="tier-tag">Most popular</div></div>
-        <div class="tier-desc">For salons, clinics and small studios with multiple service providers.</div>
+        <div class="tier-head"><div class="tier-name">Business</div><div class="tier-tag">Most popular</div></div>
+        <div class="tier-desc">For salons, clinics, and studios with a small team of service providers.</div>
         <div class="price-amt"><span class="cur">$</span><span class="amt">49</span><span class="per">/mo</span></div>
-        <div class="billed">Billed monthly · 14-day free trial</div>
+        <div class="billed">14-day free trial · cancel anytime</div>
         <a href="/signup" class="btn btn-lg cta">Start free trial</a>
         <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Up to <b>1,000 appointments</b>/mo</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>SMS + WhatsApp + email + voice</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Unlimited integrations &amp; staff</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>Smart waitlist</b> fills cancellations</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Review &amp; rebooking nudges</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>Unlimited clients</b></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>SMS + email reminders</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Up to <b>5 staff</b> accounts</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Custom SMS templates</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Priority support</span></li>
         </ul>
       </div>
 
       <div class="price-card">
-        <div class="tier-head"><div class="tier-name">Business</div></div>
-        <div class="tier-desc">For multi-location operators and growing service brands with a team.</div>
-        <div class="price-amt"><span class="cur">$</span><span class="amt">129</span><span class="per">/mo</span></div>
-        <div class="billed">Per location · volume discounts available</div>
-        <a href="#" class="btn btn-lg cta outline">Talk to sales</a>
+        <div class="tier-head"><div class="tier-name">Pro</div></div>
+        <div class="tier-desc">For multi-location operators and growing service businesses with larger teams.</div>
+        <div class="price-amt"><span class="cur">$</span><span class="amt">99</span><span class="per">/mo</span></div>
+        <div class="billed">14-day free trial · cancel anytime</div>
+        <a href="/signup" class="btn btn-lg cta outline">Start free trial</a>
         <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>Unlimited</b> appointments</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Multi-location dashboards</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Custom number &amp; sender ID</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>API access &amp; webhooks</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>HIPAA-ready BAA</span></li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Dedicated success manager</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>Unlimited</b> clients &amp; staff</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Multi-location support</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Custom SMS templates</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Dedicated support</span></li>
         </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- =================== TESTIMONIALS =================== -->
-<section class="bay test">
-  <div class="wrap">
-    <div class="bay-header">
-      <div>
-        <div class="eyebrow">Customers</div>
-        <h2 style="margin-top:18px">4,200 owners.<br/><span class="serif" style="color:var(--orange)">One million</span> reminders a month.</h2>
-      </div>
-      <div class="right">
-        From two-chair barbershops to twelve-location dental groups — NoShow runs in the background everywhere appointments matter. Here's what owners say about it.
-      </div>
-    </div>
-
-    <div class="test-grid">
-      <div class="test-card big">
-        <div class="quote big">
-          "We went from <span class="hl">17% no-shows to under 3%</span> in the first month. NoShow literally paid for our new shampoo station — and I got my Sundays back."
-        </div>
-        <div class="who">
-          <div class="av" style="background:#e8502a">CR</div>
-          <div class="who-info">
-            <div class="nm">Cassidy Reyes</div>
-            <div class="ti">Owner · Bloom Hair Studio, Austin</div>
-          </div>
-        </div>
-        <div class="stat-strip">
-          <div class="s"><b>83%</b><span>No-show drop</span></div>
-          <div class="s"><b>$14k</b><span>Recovered/mo</span></div>
-          <div class="s"><b>5 min</b><span>Setup time</span></div>
-        </div>
-      </div>
-
-      <div class="test-card med">
-        <div class="quote">
-          "I run a one-person training studio. Before NoShow I'd lose <span class="hl">two sessions a week</span> to no-shows. Now I lose maybe two a month. It's the cheapest employee I've ever hired."
-        </div>
-        <div class="who">
-          <div class="av" style="background:#7e57c2">MT</div>
-          <div class="who-info">
-            <div class="nm">Marco Torres</div>
-            <div class="ti">Founder · Forge Athletics</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="test-card sm">
-        <div class="quote">
-          "Patients actually reply now. The WhatsApp option was the unlock for our Spanish-speaking families."
-        </div>
-        <div class="who">
-          <div class="av" style="background:#26a69a">DR</div>
-          <div class="who-info">
-            <div class="nm">Dr. Priya Raman</div>
-            <div class="ti">Northgate Family Dental</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="test-card sm">
-        <div class="quote">
-          "The waitlist auto-fill is magic. A cancellation comes in and the slot is rebooked before I see the notification."
-        </div>
-        <div class="who">
-          <div class="av" style="background:#42a5f5">LK</div>
-          <div class="who-info">
-            <div class="nm">Lena Kowalski</div>
-            <div class="ti">Owner · Lumen Spa, Brooklyn</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="test-card sm">
-        <div class="quote">
-          "Switched from three different tools. NoShow does it all and the texts <em>actually sound human</em>."
-        </div>
-        <div class="who">
-          <div class="av" style="background:#ef6c00">JS</div>
-          <div class="who-info">
-            <div class="nm">Jordan Shah</div>
-            <div class="ti">GM · Mason &amp; Co. Barber</div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -1504,7 +1232,7 @@
       Never lose<br/>
       a booking <span class="serif" style="color:var(--orange)">again.</span>
     </h2>
-    <p>Free for 14 days. No credit card. Cancel with one click. Your first reminder goes out tonight.</p>
+    <p>Free for 14 days. No credit card. Cancel with one click.</p>
     <form class="email-form" onsubmit="handleSignup(event)">
       <input type="email" placeholder="you@business.com" required aria-label="Email" />
       <button type="submit">Start free
@@ -1512,9 +1240,9 @@
       </button>
     </form>
     <div class="hero-fineprint" style="margin-top: 18px;">
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> SOC 2 Type II</span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> HIPAA-ready</span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 4.9/5 on Capterra</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 14-day free trial</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> No credit card</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Cancel anytime</span>
     </div>
     <div class="wordmark">NoShow<span class="dot"></span></div>
   </div>
@@ -1526,52 +1254,26 @@
     <div class="foot">
       <div class="foot-brand">
         <a href="#" class="logo"><b>NoShow</b><i></i></a>
-        <p>Appointment reminders for small service businesses. Built in Austin, TX.</p>
+        <p>NoShow — Appointment reminders for small businesses.</p>
       </div>
       <div>
         <h4>Product</h4>
         <ul>
-          <li><a href="#">Features</a></li>
           <li><a href="#pricing">Pricing</a></li>
-          <li><a href="#">Integrations</a></li>
-          <li><a href="#">Changelog</a></li>
+          <li><a href="/signup">Sign up</a></li>
+          <li><a href="/login">Login</a></li>
         </ul>
       </div>
       <div>
-        <h4>For</h4>
+        <h4>Legal</h4>
         <ul>
-          <li><a href="#">Salons</a></li>
-          <li><a href="#">Trainers</a></li>
-          <li><a href="#">Dentists &amp; clinics</a></li>
-          <li><a href="#">Spas</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Company</h4>
-        <ul>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Customers</a></li>
-          <li><a href="#">Careers</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Resources</h4>
-        <ul>
-          <li><a href="#">Help center</a></li>
-          <li><a href="#">No-show calculator</a></li>
-          <li><a href="#">Terms</a></li>
           <li><a href="#">Privacy</a></li>
+          <li><a href="#">Terms</a></li>
         </ul>
       </div>
     </div>
     <div class="foot-bottom">
-      <span>© 2026 NoShow, Inc. All rights reserved.</span>
-      <div class="soc">
-        <a href="#" aria-label="X">𝕏</a>
-        <a href="#" aria-label="LinkedIn">in</a>
-        <a href="#" aria-label="Instagram">◎</a>
-      </div>
+      <span>© 2026 NoShow. All rights reserved.</span>
     </div>
   </div>
 </footer>
