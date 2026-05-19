@@ -4,10 +4,47 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import type { Client } from "@/lib/types";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, Calendar as CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+
+// 08:00 → 20:00 in 30-min increments (25 slots)
+const TIME_OPTIONS = Array.from({ length: 25 }, (_, i) => {
+  const mins = 8 * 60 + i * 30;
+  return `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
+});
+
+function toDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function formatDateDisplay(dateStr: string): string {
+  if (!dateStr) return "Pick a date";
+  return new Date(dateStr + "T12:00:00").toLocaleDateString([], {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
 const inputCls =
   "w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-sm text-white placeholder-[#555555] focus:outline-none focus:ring-2 focus:ring-[#e8502a] focus:border-transparent";
+
+// Inject dark theme CSS vars so shadcn Calendar picks up orange accent without
+// touching globals.css or any other component.
+const calendarVars = {
+  "--primary": "#e8502a",
+  "--primary-foreground": "#ffffff",
+  "--accent": "#252525",
+  "--accent-foreground": "#ffffff",
+  "--muted-foreground": "#888888",
+  "--background": "#1a1a1a",
+  "--foreground": "#ffffff",
+  "--border": "#2a2a2a",
+  "--ring": "#e8502a",
+} as React.CSSProperties;
 
 function Field({
   label,
@@ -39,13 +76,18 @@ export default function NewAppointmentPage() {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const [serviceName, setServiceName] = useState("");
   const [date, setDate] = useState("");
+  const [dateOpen, setDateOpen] = useState(false);
   const [time, setTime] = useState("");
+  const [serviceName, setServiceName] = useState("");
   const [notes, setNotes] = useState("");
 
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  // Disable dates before today in the calendar
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
 
   useEffect(() => {
     supabase
@@ -83,9 +125,7 @@ export default function NewAppointmentPage() {
 
     const scheduledAt = new Date(`${date}T${time}`).toISOString();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
     const { error: insertError } = await supabase.from("appointments").insert({
       user_id: user!.id,
@@ -135,9 +175,11 @@ export default function NewAppointmentPage() {
             <button
               type="button"
               onClick={() => setClientOpen((o) => !o)}
-              className={`${inputCls} flex items-center justify-between text-left ${
+              className={cn(
+                inputCls,
+                "flex items-center justify-between text-left",
                 selectedClient ? "text-white" : "text-[#555555]"
-              }`}
+              )}
             >
               {selectedClient ? selectedClient.name : "Select a client…"}
               <ChevronDown className="w-4 h-4 text-[#555555] shrink-0" />
@@ -173,16 +215,15 @@ export default function NewAppointmentPage() {
                             setClientOpen(false);
                             setClientSearch("");
                           }}
-                          className={`w-full text-left px-3 py-2 text-sm hover:bg-[#222222] transition-colors ${
+                          className={cn(
+                            "w-full text-left px-3 py-2 text-sm hover:bg-[#222222] transition-colors",
                             selectedClient?.id === c.id
                               ? "text-white font-medium"
                               : "text-[#888888]"
-                          }`}
+                          )}
                         >
                           <span>{c.name}</span>
-                          <span className="ml-2 text-[#555555] text-xs">
-                            {c.phone}
-                          </span>
+                          <span className="ml-2 text-[#555555] text-xs">{c.phone}</span>
                         </button>
                       </li>
                     ))
@@ -205,21 +246,64 @@ export default function NewAppointmentPage() {
 
         {/* Date + Time */}
         <div className="grid grid-cols-2 gap-4">
+
+          {/* Date — shadcn Popover + Calendar */}
           <Field label="Date" required>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className={inputCls}
-            />
+            <Popover open={dateOpen} onOpenChange={setDateOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "w-full flex items-center justify-between px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#e8502a]",
+                    date ? "text-white" : "text-[#555555]"
+                  )}
+                >
+                  {formatDateDisplay(date)}
+                  <CalendarIcon className="w-4 h-4 text-[#555555] shrink-0" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                className="w-auto p-0 bg-[#1a1a1a] border-[#2a2a2a] shadow-xl"
+              >
+                <div style={calendarVars}>
+                  <Calendar
+                    mode="single"
+                    selected={date ? new Date(date + "T12:00:00") : undefined}
+                    onSelect={(d) => {
+                      if (d) {
+                        setDate(toDateStr(d));
+                        setDateOpen(false);
+                      }
+                    }}
+                    disabled={{ before: todayStart }}
+                    autoFocus
+                  />
+                </div>
+              </PopoverContent>
+            </Popover>
           </Field>
+
+          {/* Time — styled select, 08:00–20:00 in 30-min steps */}
           <Field label="Time" required>
-            <input
-              type="time"
+            <select
               value={time}
               onChange={(e) => setTime(e.target.value)}
-              className={inputCls}
-            />
+              className={cn(
+                inputCls,
+                !time && "text-[#555555]",
+                "[&>option]:bg-[#1a1a1a] [&>option]:text-white"
+              )}
+            >
+              <option value="" disabled>
+                Pick a time
+              </option>
+              {TIME_OPTIONS.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
           </Field>
         </div>
 
