@@ -63,10 +63,10 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 const PLAN_COLORS: Record<string, string> = {
-  trial: "bg-gray-100 text-gray-600",
-  solo: "bg-blue-50 text-blue-700",
-  business: "bg-purple-50 text-purple-700",
-  pro: "bg-amber-50 text-amber-700",
+  trial: "bg-[#252525] text-[#888888]",
+  solo: "bg-blue-500/15 text-blue-400",
+  business: "bg-purple-500/15 text-purple-400",
+  pro: "bg-amber-500/15 text-amber-400",
 };
 
 export default function BillingPage() {
@@ -117,7 +117,7 @@ export default function BillingPage() {
   if (loading) {
     return (
       <div className="p-8 max-w-4xl mx-auto">
-        <div className="py-16 text-center text-sm text-gray-400">Loading…</div>
+        <div className="py-16 text-center text-sm text-[#555555]">Loading…</div>
       </div>
     );
   }
@@ -125,7 +125,7 @@ export default function BillingPage() {
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Billing</h1>
+        <h1 className="text-2xl font-semibold text-white">Billing</h1>
         <div className="mt-3 flex items-center gap-3">
           <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -135,12 +135,12 @@ export default function BillingPage() {
             {PLAN_LABELS[profile.plan ?? "trial"]}
           </span>
           {profile.plan === "trial" && trialEnd && (
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-[#888888]">
               Your free trial ends on {trialEnd}. Upgrade to keep access.
             </span>
           )}
           {profile.plan !== "trial" && (
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-[#888888]">
               You&apos;re on the {PLAN_LABELS[profile.plan ?? "solo"]} plan.
             </span>
           )}
@@ -154,42 +154,42 @@ export default function BillingPage() {
           return (
             <div
               key={plan.key}
-              className={`bg-white border rounded-xl p-6 flex flex-col ${
+              className={`bg-[#1a1a1a] border rounded-xl p-6 flex flex-col ${
                 isCurrent
-                  ? "border-gray-900 ring-1 ring-gray-900"
-                  : "border-gray-200"
+                  ? "border-[#e8502a] ring-1 ring-[#e8502a]/50"
+                  : "border-[#2a2a2a]"
               }`}
             >
               <div className="mb-4">
-                <h2 className="text-base font-semibold text-gray-900">
+                <h2 className="text-base font-semibold text-white">
                   {plan.name}
                 </h2>
                 <div className="mt-1">
-                  <span className="text-3xl font-bold text-gray-900">
+                  <span className="text-3xl font-bold text-white">
                     ${plan.price}
                   </span>
-                  <span className="text-sm text-gray-500">/mo</span>
+                  <span className="text-sm text-[#888888]">/mo</span>
                 </div>
               </div>
 
               <ul className="space-y-2 flex-1 mb-6">
                 {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
-                    <Check className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                  <li key={f} className="flex items-start gap-2 text-sm text-[#888888]">
+                    <Check className="w-4 h-4 text-[#e8502a] shrink-0 mt-0.5" />
                     {f}
                   </li>
                 ))}
               </ul>
 
               {isCurrent ? (
-                <div className="w-full px-4 py-2 text-sm font-medium text-center text-gray-500 border border-gray-200 rounded-lg bg-gray-50">
+                <div className="w-full px-4 py-2 text-sm font-medium text-center text-[#888888] border border-[#2a2a2a] rounded-lg bg-[#151515]">
                   Current plan
                 </div>
               ) : (
                 <button
                   onClick={() => handleUpgrade(plan.key, plan.priceId)}
                   disabled={checkoutLoading !== null}
-                  className="w-full px-4 py-2 text-sm font-medium bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                  className="w-full px-4 py-2 text-sm font-medium bg-[#e8502a] text-white rounded-lg hover:bg-[#d44424] disabled:opacity-50 transition-colors"
                 >
                   {checkoutLoading === plan.key
                     ? "Redirecting…"

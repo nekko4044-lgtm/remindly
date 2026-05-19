@@ -71,10 +71,10 @@ export default async function DashboardPage() {
     <div className="p-8 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
         <Link
           href="/appointments/new"
-          className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+          className="inline-flex items-center gap-2 bg-[#e8502a] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#d44424] transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Appointment
@@ -86,23 +86,23 @@ export default async function DashboardPage() {
         {stats.map(({ label, value }) => (
           <div
             key={label}
-            className="bg-white border border-gray-200 rounded-xl p-5"
+            className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-5"
           >
-            <p className="text-xs text-gray-500 mb-1">{label}</p>
-            <p className="text-3xl font-semibold text-gray-900">{value}</p>
+            <p className="text-xs text-[#888888] mb-1">{label}</p>
+            <p className="text-3xl font-semibold text-white">{value}</p>
           </div>
         ))}
       </div>
 
       {/* Today's appointments */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-900">
+      <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-[#2a2a2a] flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-white">
             Today&apos;s Appointments
           </h2>
           <Link
             href="/appointments"
-            className="text-xs text-gray-500 hover:text-gray-900 transition-colors"
+            className="text-xs text-[#888888] hover:text-white transition-colors"
           >
             View all →
           </Link>
@@ -110,28 +110,28 @@ export default async function DashboardPage() {
 
         {todayAppointments && todayAppointments.length > 0 ? (
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-[#151515]">
               <tr>
                 {["Client", "Service", "Time", "Status"].map((h) => (
                   <th
                     key={h}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide"
+                    className="px-6 py-3 text-left text-xs font-medium text-[#555555] uppercase tracking-wide"
                   >
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-[#2a2a2a]">
               {todayAppointments.map((apt) => (
-                <tr key={apt.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                <tr key={apt.id} className="hover:bg-[#1f1f1f]">
+                  <td className="px-6 py-4 text-sm font-medium text-white">
                     {(apt.client as { name: string } | null)?.name ?? "—"}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-[#888888]">
                     {apt.service_name}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-[#888888]">
                     {new Date(apt.scheduled_at).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -146,10 +146,10 @@ export default async function DashboardPage() {
           </table>
         ) : (
           <div className="px-6 py-14 text-center">
-            <p className="text-sm text-gray-400">No appointments today.</p>
+            <p className="text-sm text-[#888888]">No appointments today.</p>
             <Link
               href="/appointments/new"
-              className="mt-2 inline-block text-sm font-medium text-gray-900 hover:underline"
+              className="mt-2 inline-block text-sm font-medium text-[#e8502a] hover:underline"
             >
               Schedule one →
             </Link>
@@ -161,11 +161,11 @@ export default async function DashboardPage() {
 }
 
 const statusStyles: Record<AppointmentStatus, string> = {
-  scheduled: "bg-yellow-50 text-yellow-700 border-yellow-200",
-  confirmed: "bg-green-50 text-green-700 border-green-200",
-  cancelled: "bg-red-50 text-red-700 border-red-200",
-  no_show: "bg-gray-100 text-gray-500 border-gray-200",
-  completed: "bg-blue-50 text-blue-700 border-blue-200",
+  scheduled: "bg-amber-500/15 text-amber-400 border-amber-500/25",
+  confirmed: "bg-green-500/15 text-green-400 border-green-500/25",
+  cancelled: "bg-red-500/15 text-red-400 border-red-500/25",
+  no_show: "bg-[#252525] text-[#888888] border-[#333333]",
+  completed: "bg-blue-500/15 text-blue-400 border-blue-500/25",
 };
 
 const statusLabels: Record<AppointmentStatus, string> = {

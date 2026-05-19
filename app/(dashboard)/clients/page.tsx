@@ -8,7 +8,7 @@ import { Search, Plus, Edit2, Trash2, X } from "lucide-react";
 type ClientRow = Client & { appointments_count: number };
 
 const inputCls =
-  "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent";
+  "w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-sm text-white placeholder-[#555555] focus:outline-none focus:ring-2 focus:ring-[#e8502a] focus:border-transparent";
 
 export default function ClientsPage() {
   const supabase = createClient();
@@ -17,12 +17,10 @@ export default function ClientsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  // modal state
   const [addOpen, setAddOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Client | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Client | null>(null);
 
-  // form state
   const [form, setForm] = useState({ name: "", phone: "", email: "", notes: "" });
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -135,10 +133,10 @@ export default function ClientsPage() {
     <div className="p-8 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Clients</h1>
+        <h1 className="text-2xl font-semibold text-white">Clients</h1>
         <button
           onClick={openAdd}
-          className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+          className="inline-flex items-center gap-2 bg-[#e8502a] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#d44424] transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Client
@@ -147,34 +145,34 @@ export default function ClientsPage() {
 
       {/* Search */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555555] pointer-events-none" />
         <input
           type="text"
           placeholder="Search by name…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+          className="w-full pl-9 pr-4 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-sm text-white placeholder-[#555555] focus:outline-none focus:ring-2 focus:ring-[#e8502a]"
         />
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-sm text-gray-400">Loading…</div>
+          <div className="py-16 text-center text-sm text-[#555555]">Loading…</div>
         ) : filtered.length === 0 ? (
-          <div className="py-16 text-center text-sm text-gray-400">
+          <div className="py-16 text-center text-sm text-[#555555]">
             {search
               ? "No clients match your search."
               : "No clients yet — add your first one."}
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-[#151515]">
               <tr>
                 {["Name", "Phone", "Email", "Appointments", ""].map((h) => (
                   <th
                     key={h}
-                    className={`px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide ${
+                    className={`px-6 py-3 text-xs font-medium text-[#555555] uppercase tracking-wide ${
                       h === "" ? "text-right" : "text-left"
                     }`}
                   >
@@ -183,33 +181,33 @@ export default function ClientsPage() {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-[#2a2a2a]">
               {filtered.map((client) => (
-                <tr key={client.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                <tr key={client.id} className="hover:bg-[#1f1f1f]">
+                  <td className="px-6 py-4 text-sm font-medium text-white">
                     {client.name}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-[#888888]">
                     {client.phone}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-[#888888]">
                     {client.email ?? "—"}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-[#888888]">
                     {client.appointments_count}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="inline-flex items-center gap-1">
                       <button
                         onClick={() => openEdit(client)}
-                        className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-1.5 text-[#555555] hover:text-white hover:bg-[#252525] rounded-lg transition-colors"
                         title="Edit"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => setDeleteTarget(client)}
-                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-1.5 text-[#555555] hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                         title="Delete"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -273,21 +271,21 @@ export default function ClientsPage() {
               />
             </Field>
             {formError && (
-              <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+              <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">
                 {formError}
               </p>
             )}
             <div className="flex gap-2 pt-2">
               <button
                 onClick={closeModal}
-                className="flex-1 px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2 text-sm border border-[#2a2a2a] text-[#888888] rounded-lg hover:bg-[#222222] hover:text-white transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                className="flex-1 px-4 py-2 text-sm bg-[#e8502a] text-white rounded-lg hover:bg-[#d44424] disabled:opacity-50 transition-colors"
               >
                 {saving ? "Saving…" : "Save"}
               </button>
@@ -299,15 +297,15 @@ export default function ClientsPage() {
       {/* Delete confirmation */}
       {deleteTarget && (
         <Modal title="Delete Client" onClose={closeModal}>
-          <p className="text-sm text-gray-600 mb-6">
+          <p className="text-sm text-[#888888] mb-6">
             Are you sure you want to delete{" "}
-            <strong>{deleteTarget.name}</strong>? All their appointments will
+            <strong className="text-white">{deleteTarget.name}</strong>? All their appointments will
             also be deleted.
           </p>
           <div className="flex gap-2">
             <button
               onClick={closeModal}
-              className="flex-1 px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2 text-sm border border-[#2a2a2a] text-[#888888] rounded-lg hover:bg-[#222222] hover:text-white transition-colors"
             >
               Cancel
             </button>
@@ -333,7 +331,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-gray-700 mb-1">
+      <label className="block text-xs font-medium text-[#888888] mb-1">
         {label}
       </label>
       {children}
@@ -353,15 +351,15 @@ function Modal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+      <div className="relative bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-xl p-6 w-full max-w-md">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-semibold text-gray-900">{title}</h2>
+          <h2 className="text-base font-semibold text-white">{title}</h2>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1.5 text-[#555555] hover:text-white hover:bg-[#252525] rounded-lg transition-colors"
           >
             <X className="w-4 h-4" />
           </button>

@@ -21,7 +21,7 @@ export default async function DashboardLayout({
     .single();
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-[#111111]">
       <DashboardSidebar
         email={profile?.email ?? user.email ?? ""}
         businessName={profile?.business_name ?? "My Business"}

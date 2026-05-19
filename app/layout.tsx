@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Remindly",
-  description: "Automated appointment reminders for your business",
+  title: "NoShow — Stop losing clients to no-shows",
+  description: "Automated SMS & Email reminders for small businesses",
 };
 
 export default function RootLayout({

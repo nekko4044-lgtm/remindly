@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase-client";
 import type { User } from "@/lib/types";
 
 const inputCls =
-  "w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent";
+  "w-full px-3 py-2 bg-[#111111] border border-[#2a2a2a] rounded-lg text-sm text-white placeholder-[#555555] focus:outline-none focus:ring-2 focus:ring-[#e8502a] focus:border-transparent";
 
 const TIMEZONES = [
   "UTC",
@@ -38,16 +38,16 @@ const PLAN_LABELS: Record<string, string> = {
 };
 
 const PLAN_COLORS: Record<string, string> = {
-  trial: "bg-gray-100 text-gray-600",
-  solo: "bg-blue-50 text-blue-700",
-  business: "bg-purple-50 text-purple-700",
-  pro: "bg-amber-50 text-amber-700",
+  trial: "bg-[#252525] text-[#888888]",
+  solo: "bg-blue-500/15 text-blue-400",
+  business: "bg-purple-500/15 text-purple-400",
+  pro: "bg-amber-500/15 text-amber-400",
 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-6">
-      <h2 className="text-sm font-semibold text-gray-900 mb-4">{title}</h2>
+    <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
+      <h2 className="text-sm font-semibold text-white mb-4">{title}</h2>
       {children}
     </div>
   );
@@ -56,9 +56,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-medium text-gray-700">{label}</label>
+      <label className="block text-xs font-medium text-[#888888]">{label}</label>
       {children}
-      {hint && <p className="text-xs text-gray-400">{hint}</p>}
+      {hint && <p className="text-xs text-[#555555]">{hint}</p>}
     </div>
   );
 }
@@ -137,17 +137,16 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="p-8 max-w-2xl mx-auto">
-        <div className="py-16 text-center text-sm text-gray-400">Loading…</div>
+        <div className="py-16 text-center text-sm text-[#555555]">Loading…</div>
       </div>
     );
   }
 
   return (
     <div className="p-8 max-w-2xl mx-auto">
-      <h1 className="text-2xl font-semibold text-gray-900 mb-6">Settings</h1>
+      <h1 className="text-2xl font-semibold text-white mb-6">Settings</h1>
 
       <form onSubmit={handleSave} className="space-y-6">
-        {/* Business Info */}
         <Section title="Business">
           <Field label="Business Name">
             <input
@@ -159,13 +158,12 @@ export default function SettingsPage() {
           </Field>
         </Section>
 
-        {/* Localization */}
         <Section title="Localization">
           <Field label="Timezone">
             <select
               value={timezone}
               onChange={(e) => setTimezone(e.target.value)}
-              className={inputCls}
+              className={`${inputCls} [&>option]:bg-[#1a1a1a]`}
             >
               {TIMEZONES.map((tz) => (
                 <option key={tz} value={tz}>
@@ -176,7 +174,6 @@ export default function SettingsPage() {
           </Field>
         </Section>
 
-        {/* SMS Templates */}
         <Section title="SMS Reminders">
           <Field
             label="24-Hour Reminder Template"
@@ -192,7 +189,7 @@ export default function SettingsPage() {
         </Section>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+          <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg">
             {error}
           </p>
         )}
@@ -201,21 +198,19 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="px-6 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors"
+            className="px-6 py-2 text-sm bg-[#e8502a] text-white rounded-lg hover:bg-[#d44424] disabled:opacity-50 transition-colors"
           >
             {saving ? "Saving…" : "Save Changes"}
           </button>
           {saved && (
-            <span className="text-sm text-green-600">Changes saved.</span>
+            <span className="text-sm text-green-400">Changes saved.</span>
           )}
         </div>
       </form>
 
       {/* Plan info */}
-      <div className="mt-8 bg-white border border-gray-200 rounded-xl p-6">
-        <h2 className="text-sm font-semibold text-gray-900 mb-3">
-          Subscription
-        </h2>
+      <div className="mt-8 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6">
+        <h2 className="text-sm font-semibold text-white mb-3">Subscription</h2>
         <div className="flex items-center gap-3">
           <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -225,14 +220,14 @@ export default function SettingsPage() {
             {PLAN_LABELS[profile.plan ?? "trial"]}
           </span>
           {profile.plan === "trial" && trialEnd && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-[#888888]">
               Trial ends {trialEnd}
             </span>
           )}
         </div>
         <a
           href="/billing"
-          className="mt-3 inline-block text-xs font-medium text-gray-900 hover:underline"
+          className="mt-3 inline-block text-xs font-medium text-[#e8502a] hover:underline"
         >
           Manage billing →
         </a>

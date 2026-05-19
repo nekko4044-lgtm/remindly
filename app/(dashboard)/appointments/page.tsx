@@ -27,11 +27,11 @@ const STATUS_OPTIONS: AppointmentStatus[] = [
 ];
 
 const statusStyles: Record<AppointmentStatus, string> = {
-  scheduled: "bg-yellow-50 text-yellow-700 border-yellow-200",
-  confirmed: "bg-green-50 text-green-700 border-green-200",
-  cancelled: "bg-red-50 text-red-700 border-red-200",
-  no_show: "bg-gray-100 text-gray-500 border-gray-200",
-  completed: "bg-blue-50 text-blue-700 border-blue-200",
+  scheduled: "bg-amber-500/15 text-amber-400 border-amber-500/25",
+  confirmed: "bg-green-500/15 text-green-400 border-green-500/25",
+  cancelled: "bg-red-500/15 text-red-400 border-red-500/25",
+  no_show: "bg-[#252525] text-[#888888] border-[#333333]",
+  completed: "bg-blue-500/15 text-blue-400 border-blue-500/25",
 };
 
 const statusLabels: Record<AppointmentStatus, string> = {
@@ -102,10 +102,10 @@ export default function AppointmentsPage() {
     <div className="p-8 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Appointments</h1>
+        <h1 className="text-2xl font-semibold text-white">Appointments</h1>
         <Link
           href="/appointments/new"
-          className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+          className="inline-flex items-center gap-2 bg-[#e8502a] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#d44424] transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Appointment
@@ -113,15 +113,15 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 mb-4 bg-gray-100 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 mb-4 bg-[#151515] p-1 rounded-lg w-fit">
         {FILTERS.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setFilter(key)}
             className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
               filter === key
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-[#252525] text-white shadow-sm"
+                : "text-[#888888] hover:text-white"
             }`}
           >
             {label}
@@ -130,21 +130,21 @@ export default function AppointmentsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-sm text-gray-400">Loading…</div>
+          <div className="py-16 text-center text-sm text-[#555555]">Loading…</div>
         ) : filtered.length === 0 ? (
-          <div className="py-16 text-center text-sm text-gray-400">
+          <div className="py-16 text-center text-sm text-[#555555]">
             No appointments found.
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-[#151515]">
               <tr>
                 {["Client", "Service", "Date & Time", "Status", ""].map((h) => (
                   <th
                     key={h}
-                    className={`px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide ${
+                    className={`px-6 py-3 text-xs font-medium text-[#555555] uppercase tracking-wide ${
                       h === "" ? "text-right" : "text-left"
                     }`}
                   >
@@ -153,16 +153,16 @@ export default function AppointmentsPage() {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-[#2a2a2a]">
               {filtered.map((apt) => (
-                <tr key={apt.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                <tr key={apt.id} className="hover:bg-[#1f1f1f]">
+                  <td className="px-6 py-4 text-sm font-medium text-white">
                     {apt.client?.name ?? "—"}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-[#888888]">
                     {apt.service_name}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-[#888888]">
                     {new Date(apt.scheduled_at).toLocaleString([], {
                       month: "short",
                       day: "numeric",
@@ -178,12 +178,12 @@ export default function AppointmentsPage() {
                       onChange={(e) =>
                         handleStatusChange(apt.id, e.target.value as AppointmentStatus)
                       }
-                      className={`text-xs font-medium border rounded-full px-2.5 py-0.5 focus:outline-none focus:ring-2 focus:ring-gray-900 cursor-pointer ${
+                      className={`text-xs font-medium border rounded-full px-2.5 py-0.5 focus:outline-none focus:ring-2 focus:ring-[#e8502a] cursor-pointer bg-transparent ${
                         statusStyles[apt.status]
                       }`}
                     >
                       {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s}>
+                        <option key={s} value={s} className="bg-[#1a1a1a] text-white">
                           {statusLabels[s]}
                         </option>
                       ))}
@@ -192,7 +192,7 @@ export default function AppointmentsPage() {
                   <td className="px-6 py-4 text-right">
                     <button
                       onClick={() => setDeleteTarget(apt)}
-                      className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-1.5 text-[#555555] hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                       title="Delete"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -209,24 +209,24 @@ export default function AppointmentsPage() {
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setDeleteTarget(null)}
           />
-          <div className="relative bg-white rounded-xl shadow-xl p-6 w-full max-w-sm">
-            <h2 className="text-base font-semibold text-gray-900 mb-3">
+          <div className="relative bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-xl p-6 w-full max-w-sm">
+            <h2 className="text-base font-semibold text-white mb-3">
               Delete Appointment
             </h2>
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-sm text-[#888888] mb-6">
               Delete{" "}
-              <strong>{deleteTarget.client?.name ?? "this"}&apos;s</strong>{" "}
+              <strong className="text-white">{deleteTarget.client?.name ?? "this"}&apos;s</strong>{" "}
               appointment for{" "}
-              <strong>{deleteTarget.service_name}</strong>? This cannot be
+              <strong className="text-white">{deleteTarget.service_name}</strong>? This cannot be
               undone.
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => setDeleteTarget(null)}
-                className="flex-1 px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2 text-sm border border-[#2a2a2a] text-[#888888] rounded-lg hover:bg-[#222222] hover:text-white transition-colors"
               >
                 Cancel
               </button>

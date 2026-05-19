@@ -1,4 +1,4 @@
--- Remindly — Initial Schema
+-- NoShow — Initial Schema
 -- Run this in Supabase SQL Editor or via CLI
 
 -- ────────────────────────────────────────
