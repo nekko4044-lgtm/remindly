@@ -1,0 +1,1604 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Remindly — Appointment reminders that actually show up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:        #0b0908;
+    --bg-2:     #100d0b;
+    --bg-3:     #15110f;
+    --card:      #161310;
+    --card-2:    #1c1815;
+    --line:      rgba(255, 240, 220, 0.07);
+    --line-2:    rgba(255, 240, 220, 0.14);
+    --ink:       #f5efe6;
+    --ink-dim:   rgba(245, 239, 230, 0.62);
+    --ink-mute:  rgba(245, 239, 230, 0.40);
+    --ink-faint: rgba(245, 239, 230, 0.22);
+    --orange:    #e8502a;
+    --orange-2:  #ff6a3d;
+    --orange-soft: rgba(232, 80, 42, 0.16);
+    --orange-glow: rgba(232, 80, 42, 0.45);
+
+    --r-sm: 8px;
+    --r:    12px;
+    --r-lg: 18px;
+    --r-xl: 28px;
+
+    --max: 1240px;
+    --pad: clamp(20px, 4vw, 56px);
+
+    --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-serif: 'Instrument Serif', 'Times New Roman', serif;
+    --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'ss01', 'cv11';
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--orange); color: #fff; }
+
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; cursor: pointer; border: 0; background: transparent; }
+  img, svg { display: block; max-width: 100%; }
+
+  /* ---------- layout ---------- */
+  .wrap {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding-left: var(--pad);
+    padding-right: var(--pad);
+  }
+
+  /* ---------- type primitives ---------- */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 22px;
+    height: 1px;
+    background: var(--ink-faint);
+  }
+  .eyebrow.center { justify-content: center; }
+  .eyebrow.center::after {
+    content: '';
+    width: 22px;
+    height: 1px;
+    background: var(--ink-faint);
+  }
+
+  h1, h2, h3, h4 { font-weight: 500; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+  h1 { font-size: clamp(48px, 8.2vw, 116px); line-height: 0.95; letter-spacing: -0.035em; font-weight: 500; }
+  h2 { font-size: clamp(36px, 5.4vw, 72px); line-height: 1.02; letter-spacing: -0.03em; }
+  h3 { font-size: clamp(22px, 2.4vw, 30px); line-height: 1.15; letter-spacing: -0.02em; }
+  .serif { font-family: var(--font-serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+  .lead { font-size: clamp(17px, 1.4vw, 20px); color: var(--ink-dim); line-height: 1.55; max-width: 60ch; text-wrap: pretty; }
+
+  /* ---------- nav ---------- */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    background: color-mix(in oklab, var(--bg) 78%, transparent);
+    border-bottom: 1px solid transparent;
+    transition: border-color .25s ease, background .25s ease;
+  }
+  .nav.scrolled { border-bottom-color: var(--line); }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+    gap: 32px;
+  }
+  .logo {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 2px;
+    font-weight: 600;
+    font-size: 19px;
+    letter-spacing: -0.02em;
+  }
+  .logo b { font-weight: 600; }
+  .logo i {
+    color: var(--orange);
+    font-style: normal;
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--orange);
+    margin-left: 3px;
+    box-shadow: 0 0 18px var(--orange-glow);
+    transform: translateY(-1px);
+  }
+  .nav-links {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+  }
+  .nav-links a {
+    font-size: 14px;
+    color: var(--ink-dim);
+    transition: color .15s ease;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  @media (max-width: 880px) {
+    .nav-links { display: none; }
+  }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 18px;
+    height: 40px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    transition: transform .15s ease, background .15s ease, color .15s ease, box-shadow .25s ease, border-color .15s ease;
+    white-space: nowrap;
+  }
+  .btn-ghost { color: var(--ink-dim); }
+  .btn-ghost:hover { color: var(--ink); }
+  .btn-outline {
+    border: 1px solid var(--line-2);
+    color: var(--ink);
+  }
+  .btn-outline:hover { border-color: rgba(255,255,255,.32); background: rgba(255,255,255,.03); }
+  .btn-primary {
+    background: var(--orange);
+    color: #fff;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.06) inset, 0 8px 30px -10px var(--orange-glow);
+  }
+  .btn-primary:hover {
+    background: var(--orange-2);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.10) inset, 0 12px 40px -10px var(--orange-glow);
+    transform: translateY(-1px);
+  }
+  .btn-lg { height: 52px; padding: 0 26px; font-size: 15px; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative;
+    padding: clamp(60px, 8vw, 120px) 0 80px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: -10% -10% auto -10%;
+    height: 90%;
+    background:
+      radial-gradient(60% 70% at 50% 0%, rgba(232, 80, 42, 0.20), transparent 60%),
+      radial-gradient(40% 60% at 80% 20%, rgba(232, 80, 42, 0.08), transparent 70%);
+    z-index: -2;
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, var(--line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(80% 60% at 50% 30%, black, transparent 70%);
+    -webkit-mask-image: radial-gradient(80% 60% at 50% 30%, black, transparent 70%);
+    z-index: -1;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .hero-top {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 36px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 6px 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line-2);
+    background: rgba(255,255,255,0.02);
+    font-size: 13px;
+    color: var(--ink-dim);
+    backdrop-filter: blur(8px);
+  }
+  .pill b {
+    font-weight: 500;
+    color: var(--ink);
+    font-size: 12px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--orange-soft);
+    color: #ffb59a;
+    letter-spacing: 0.02em;
+  }
+  .pill .dot {
+    width: 6px; height: 6px; border-radius: 999px; background: var(--orange);
+    box-shadow: 0 0 10px var(--orange-glow);
+    display: inline-block;
+  }
+
+  .hero h1 {
+    text-align: center;
+    margin: 0 auto;
+    max-width: 18ch;
+  }
+  .hero h1 .accent {
+    color: var(--orange);
+  }
+  .hero h1 .serif {
+    display: inline-block;
+    line-height: 1;
+  }
+  .hero-sub {
+    text-align: center;
+    margin: 28px auto 0;
+    color: var(--ink-dim);
+    font-size: clamp(17px, 1.5vw, 21px);
+    max-width: 58ch;
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  .email-form {
+    margin: 40px auto 0;
+    max-width: 480px;
+    display: flex;
+    gap: 6px;
+    padding: 6px;
+    background: var(--card);
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    box-shadow: 0 24px 70px -30px rgba(0,0,0,.6), 0 0 0 6px rgba(232,80,42,.06);
+    transition: box-shadow .25s ease, border-color .25s ease;
+  }
+  .email-form:focus-within {
+    border-color: rgba(232,80,42,.6);
+    box-shadow: 0 24px 70px -30px rgba(0,0,0,.6), 0 0 0 6px rgba(232,80,42,.12);
+  }
+  .email-form input {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: var(--ink);
+    font-size: 15px;
+    padding: 0 14px;
+    font-family: inherit;
+  }
+  .email-form input::placeholder { color: var(--ink-mute); }
+  .email-form button {
+    background: var(--orange);
+    color: #fff;
+    border-radius: 999px;
+    height: 44px;
+    padding: 0 22px;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background .15s ease;
+  }
+  .email-form button:hover { background: var(--orange-2); }
+  .hero-fineprint {
+    margin: 16px auto 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-mute);
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .hero-fineprint span { display: inline-flex; align-items: center; gap: 6px; }
+  .hero-fineprint svg { width: 14px; height: 14px; color: var(--orange); }
+
+  /* ---------- hero showcase (phone + cards) ---------- */
+  .showcase {
+    position: relative;
+    margin: clamp(60px, 9vw, 110px) auto 0;
+    max-width: 1080px;
+    height: clamp(440px, 60vw, 620px);
+  }
+  .phone {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 320px;
+    height: 620px;
+    background: linear-gradient(180deg, #1a1613 0%, #100d0b 100%);
+    border-radius: 48px;
+    border: 1px solid var(--line-2);
+    padding: 14px;
+    box-shadow:
+      0 0 0 8px #0a0807,
+      0 0 0 9px rgba(255,255,255,.06),
+      0 60px 120px -30px rgba(0,0,0,.7),
+      0 0 100px -10px rgba(232,80,42,.15);
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    background: #0c0a09;
+    border-radius: 34px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .phone-notch {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 28px;
+    background: #000;
+    border-radius: 999px;
+    z-index: 3;
+  }
+  .phone-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 26px 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    height: 44px;
+  }
+  .phone-status .icons {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    color: var(--ink-dim);
+  }
+  .phone-status .icons svg { width: 14px; height: 14px; }
+
+  .sms-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0 14px;
+    border-bottom: 0.5px solid var(--line);
+  }
+  .sms-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--orange) 0%, #ff8a55 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 17px;
+    box-shadow: 0 8px 20px -8px var(--orange-glow);
+    margin-bottom: 6px;
+  }
+  .sms-header b { font-size: 13px; font-weight: 500; }
+  .sms-header span { font-size: 11px; color: var(--ink-mute); margin-top: 2px; }
+
+  .sms-thread {
+    flex: 1;
+    overflow: hidden;
+    padding: 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sms-time {
+    text-align: center;
+    font-size: 10px;
+    color: var(--ink-mute);
+    margin: 6px 0 4px;
+    letter-spacing: 0.02em;
+  }
+  .sms {
+    max-width: 78%;
+    padding: 9px 13px;
+    border-radius: 18px;
+    font-size: 13.5px;
+    line-height: 1.35;
+    word-wrap: break-word;
+  }
+  .sms.in {
+    background: #1f1c19;
+    color: var(--ink);
+    align-self: flex-start;
+    border-bottom-left-radius: 5px;
+  }
+  .sms.out {
+    background: var(--orange);
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 5px;
+  }
+  .sms small { display: block; font-size: 10px; opacity: 0.7; margin-top: 3px; letter-spacing: 0.02em; }
+
+  /* floating cards */
+  .float-card {
+    position: absolute;
+    background: linear-gradient(180deg, var(--card-2), var(--card));
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-lg);
+    padding: 16px 18px;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,.6);
+    backdrop-filter: blur(14px);
+    z-index: 2;
+  }
+  .float-card .label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 6px;
+  }
+  .float-card .value {
+    font-size: 30px;
+    letter-spacing: -0.03em;
+    font-weight: 500;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .float-card .delta {
+    color: #4ade80;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .float-card.fc-1 {
+    top: 80px;
+    left: 4%;
+    width: 220px;
+    animation: float 6s ease-in-out infinite;
+  }
+  .float-card.fc-2 {
+    top: 320px;
+    left: 2%;
+    width: 240px;
+    animation: float 7s ease-in-out infinite 1.5s;
+  }
+  .float-card.fc-3 {
+    top: 110px;
+    right: 4%;
+    width: 250px;
+    animation: float 6.5s ease-in-out infinite 0.5s;
+  }
+  .float-card.fc-4 {
+    top: 360px;
+    right: 3%;
+    width: 230px;
+    animation: float 7.5s ease-in-out infinite 2s;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .fc-3 .channels {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .fc-3 .chan {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: #221d19;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-dim);
+  }
+  .fc-3 .chan.active { background: var(--orange-soft); color: var(--orange-2); }
+  .fc-3 .chan svg { width: 16px; height: 16px; }
+
+  .fc-4 .row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .fc-4 .row + .row { margin-top: 6px; }
+  .fc-4 .av {
+    width: 24px; height: 24px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500; color: #fff;
+  }
+  .fc-4 .nm { font-size: 12.5px; color: var(--ink); }
+  .fc-4 .st { font-size: 11px; color: #4ade80; margin-left: auto; }
+
+  @media (max-width: 880px) {
+    .showcase { height: auto; max-width: 360px; }
+    .phone { position: relative; left: auto; transform: none; margin: 0 auto; width: 100%; max-width: 320px; }
+    .float-card { display: none; }
+  }
+
+  /* ---------- logo strip ---------- */
+  .logos {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 40px 0;
+    margin-top: 80px;
+  }
+  .logos-inner {
+    display: flex;
+    align-items: center;
+    gap: clamp(24px, 5vw, 60px);
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .logos-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    flex-shrink: 0;
+  }
+  .logos-row {
+    display: flex;
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+    flex-wrap: wrap;
+    flex: 1;
+    justify-content: flex-end;
+  }
+  .logos-row .lg {
+    color: var(--ink-dim);
+    opacity: 0.75;
+    transition: opacity .2s ease;
+    font-weight: 500;
+    font-size: 17px;
+    letter-spacing: -0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .logos-row .lg:hover { opacity: 1; }
+
+  /* ---------- sections ---------- */
+  section.bay { padding: clamp(80px, 11vw, 140px) 0; position: relative; }
+  .bay-header {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 60px;
+    margin-bottom: 64px;
+    align-items: end;
+  }
+  .bay-header .right { color: var(--ink-dim); font-size: 18px; line-height: 1.55; max-width: 52ch; }
+  @media (max-width: 820px) {
+    .bay-header { grid-template-columns: 1fr; gap: 24px; }
+  }
+
+  /* ---------- pain section ---------- */
+  .pain {
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+    border-top: 1px solid var(--line);
+  }
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 880px) {
+    .pain-grid { grid-template-columns: 1fr; }
+  }
+  .pain-card {
+    background: linear-gradient(180deg, var(--card) 0%, var(--bg-3) 100%);
+    border: 1px solid var(--line);
+    border-radius: var(--r-xl);
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: border-color .25s ease, transform .25s ease;
+  }
+  .pain-card:hover { border-color: var(--line-2); transform: translateY(-2px); }
+  .pain-card::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: -1px; right: -1px;
+    height: 60%;
+    background: radial-gradient(80% 100% at 50% 0%, rgba(232,80,42,0.10), transparent 70%);
+    pointer-events: none;
+    border-top-left-radius: var(--r-xl);
+    border-top-right-radius: var(--r-xl);
+  }
+  .pain-stat {
+    font-size: clamp(56px, 6.5vw, 88px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-weight: 500;
+    margin-bottom: 8px;
+    background: linear-gradient(180deg, #fff 0%, #f5efe6 50%, rgba(245,239,230,0.5) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .pain-stat .unit {
+    color: var(--orange);
+    -webkit-text-fill-color: var(--orange);
+  }
+  .pain-card .title {
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .pain-card .desc {
+    color: var(--ink-dim);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .pain-card .source {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-mute);
+    margin-top: 16px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ---------- how it works ---------- */
+  .hiw {
+    border-top: 1px solid var(--line);
+  }
+  .hiw-list { display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: grid;
+    grid-template-columns: 100px 1.1fr 1fr;
+    gap: 60px;
+    padding: 44px 0;
+    border-top: 1px solid var(--line);
+    align-items: start;
+    position: relative;
+  }
+  .step:last-child { border-bottom: 1px solid var(--line); }
+  .step:hover .step-visual { opacity: 1; transform: translateY(0); }
+  .step-num {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--orange);
+    letter-spacing: 0.04em;
+    padding-top: 6px;
+  }
+  .step-title {
+    font-size: clamp(26px, 3vw, 36px);
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  .step-desc { color: var(--ink-dim); font-size: 16px; line-height: 1.55; max-width: 44ch; }
+  .step-visual {
+    transition: opacity .3s ease, transform .3s ease;
+    opacity: 0.92;
+    transform: translateY(0);
+  }
+  @media (max-width: 880px) {
+    .step { grid-template-columns: 60px 1fr; gap: 24px; }
+    .step-visual { grid-column: 1 / -1; margin-top: 12px; }
+  }
+
+  /* step visuals */
+  .vis {
+    background: linear-gradient(180deg, var(--card) 0%, var(--bg-3) 100%);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 20px;
+    min-height: 200px;
+  }
+  .vis-row { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; background: #1a1613; border: 1px solid var(--line); }
+  .vis-row + .vis-row { margin-top: 8px; }
+  .vis-ico {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 13px; color: #fff;
+    flex-shrink: 0;
+  }
+  .vis-row .nm { font-size: 13.5px; }
+  .vis-row .meta { font-size: 11.5px; color: var(--ink-mute); margin-left: auto; font-family: var(--font-mono); }
+  .vis-row .pill-sm { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--orange-soft); color: #ffb59a; margin-left: auto; font-family: var(--font-mono); }
+
+  .vis-knobs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .vis-knob {
+    background: #1a1613; border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px; font-size: 12px; color: var(--ink-dim);
+  }
+  .vis-knob b { display: block; color: var(--ink); font-weight: 500; margin-bottom: 4px; font-size: 13px; }
+  .vis-knob .v { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .vis-knob .v span { padding: 3px 8px; border-radius: 999px; background: #221d19; font-family: var(--font-mono); font-size: 10.5px; }
+  .vis-knob .v span.on { background: var(--orange); color: #fff; }
+
+  .vis-chart { position: relative; height: 130px; padding-top: 18px; }
+  .vis-chart .bars { display: flex; align-items: flex-end; gap: 10px; height: 100%; }
+  .vis-chart .bar {
+    flex: 1; background: linear-gradient(180deg, rgba(232,80,42,.85), rgba(232,80,42,.4));
+    border-radius: 4px 4px 0 0;
+    position: relative;
+  }
+  .vis-chart .bar.dim { background: #2a2521; }
+  .vis-chart .labels { display: flex; gap: 10px; margin-top: 8px; }
+  .vis-chart .labels span { flex: 1; text-align: center; font-size: 10.5px; color: var(--ink-mute); font-family: var(--font-mono); }
+  .vis-cap { font-family: var(--font-mono); font-size: 11px; color: var(--ink-mute); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .vis-cap b { color: var(--ink); font-weight: 500; }
+
+  /* ---------- pricing ---------- */
+  .pricing {
+    background: var(--bg-2);
+    border-top: 1px solid var(--line);
+  }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: stretch;
+  }
+  @media (max-width: 980px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+  .price-card {
+    background: linear-gradient(180deg, var(--card) 0%, var(--bg-3) 100%);
+    border: 1px solid var(--line);
+    border-radius: var(--r-xl);
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform .25s ease, border-color .25s ease;
+  }
+  .price-card:hover { border-color: var(--line-2); }
+  .price-card.featured {
+    border-color: rgba(232, 80, 42, 0.45);
+    background:
+      radial-gradient(120% 60% at 50% 0%, rgba(232,80,42,0.18), transparent 60%),
+      linear-gradient(180deg, var(--card) 0%, var(--bg-3) 100%);
+    box-shadow: 0 0 0 1px rgba(232,80,42,0.2), 0 30px 80px -30px rgba(232,80,42,0.4);
+    transform: translateY(-4px);
+  }
+  .price-card .tier-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .price-card .tier-name {
+    font-size: 15px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .price-card .tier-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--orange);
+    background: var(--orange-soft);
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .price-card .tier-desc { color: var(--ink-dim); font-size: 14px; margin-bottom: 28px; min-height: 42px; }
+  .price-amt {
+    display: flex; align-items: baseline; gap: 4px;
+    margin-bottom: 4px;
+  }
+  .price-amt .amt {
+    font-size: 64px; font-weight: 500; letter-spacing: -0.04em; line-height: 1;
+  }
+  .price-amt .cur { font-size: 22px; color: var(--ink-dim); letter-spacing: -0.02em; }
+  .price-amt .per { color: var(--ink-mute); font-size: 14px; margin-left: 2px; }
+  .price-card .billed { font-size: 13px; color: var(--ink-mute); margin-bottom: 24px; }
+  .price-card .cta { width: 100%; }
+  .price-card.featured .cta { background: var(--orange); color: #fff; }
+  .price-card.featured .cta:hover { background: var(--orange-2); }
+  .price-card .cta.outline {
+    border: 1px solid var(--line-2);
+    background: transparent;
+  }
+  .price-card .cta.outline:hover {
+    background: rgba(255,255,255,.04);
+    border-color: rgba(255,255,255,.30);
+  }
+  .price-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 28px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+  .price-card ul li {
+    font-size: 14px;
+    color: var(--ink-dim);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    line-height: 1.4;
+  }
+  .price-card ul li svg { flex-shrink: 0; margin-top: 3px; color: var(--orange); width: 14px; height: 14px; }
+  .price-card ul li b { color: var(--ink); font-weight: 500; }
+
+  /* ---------- testimonials ---------- */
+  .test {
+    border-top: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .test-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 16px;
+  }
+  .test-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-xl);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: border-color .25s ease;
+  }
+  .test-card:hover { border-color: var(--line-2); }
+  .test-card.big { grid-column: span 6; }
+  .test-card.med { grid-column: span 6; }
+  .test-card.sm  { grid-column: span 4; }
+  @media (max-width: 980px) {
+    .test-card.big, .test-card.med, .test-card.sm { grid-column: span 12; }
+  }
+  .quote {
+    font-size: clamp(18px, 1.7vw, 22px);
+    line-height: 1.4;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    text-wrap: pretty;
+  }
+  .quote.big {
+    font-size: clamp(22px, 2.4vw, 30px);
+    line-height: 1.3;
+    font-weight: 400;
+  }
+  .quote .hl { background: linear-gradient(120deg, transparent 0 5%, var(--orange-soft) 5% 95%, transparent 95% 100%); padding: 2px 0; }
+  .who {
+    display: flex; gap: 12px; align-items: center;
+    margin-top: auto;
+  }
+  .who .av {
+    width: 40px; height: 40px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 500; color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .who .who-info { line-height: 1.3; }
+  .who .nm { font-size: 14px; font-weight: 500; }
+  .who .ti { font-size: 13px; color: var(--ink-mute); }
+  .stat-strip {
+    display: flex; gap: 16px; margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .stat-strip .s {
+    flex: 1;
+    min-width: 110px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255,255,255,.02);
+  }
+  .stat-strip .s b {
+    display: block;
+    font-size: 22px;
+    letter-spacing: -0.025em;
+    font-weight: 500;
+    color: var(--orange);
+  }
+  .stat-strip .s span {
+    font-size: 12px; color: var(--ink-mute); font-family: var(--font-mono);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+
+  /* ---------- CTA footer ---------- */
+  .cta {
+    border-top: 1px solid var(--line);
+    padding: clamp(100px, 14vw, 180px) 0 clamp(80px, 10vw, 140px);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    isolation: isolate;
+  }
+  .cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(60% 80% at 50% 100%, rgba(232,80,42,0.32), transparent 60%),
+      radial-gradient(40% 50% at 20% 30%, rgba(232,80,42,0.06), transparent 70%);
+    z-index: -2;
+    pointer-events: none;
+  }
+  .cta::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, var(--line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(60% 80% at 50% 50%, black, transparent 75%);
+    -webkit-mask-image: radial-gradient(60% 80% at 50% 50%, black, transparent 75%);
+    z-index: -1;
+    opacity: 0.5;
+  }
+  .cta h2 {
+    font-size: clamp(46px, 7vw, 96px);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    font-weight: 500;
+    margin: 0 auto;
+    max-width: 16ch;
+  }
+  .cta p {
+    margin: 24px auto 36px;
+    color: var(--ink-dim);
+    font-size: 19px;
+    max-width: 50ch;
+    line-height: 1.5;
+  }
+  .cta .email-form { margin-top: 36px; }
+
+  /* ---------- footer ---------- */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 60px 0 40px;
+  }
+  .foot {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 60px;
+  }
+  @media (max-width: 880px) { .foot { grid-template-columns: 1fr 1fr; } }
+  .foot-brand .logo { font-size: 21px; }
+  .foot-brand p { color: var(--ink-mute); font-size: 14px; max-width: 30ch; margin: 16px 0 0; line-height: 1.5; }
+  .foot h4 {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-mute);
+    font-weight: 400;
+    margin-bottom: 18px;
+  }
+  .foot ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+  .foot ul a { font-size: 14px; color: var(--ink-dim); transition: color .15s ease; }
+  .foot ul a:hover { color: var(--ink); }
+  .foot-bottom {
+    border-top: 1px solid var(--line);
+    padding-top: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--ink-mute);
+  }
+  .foot-bottom .soc { display: flex; gap: 16px; }
+  .foot-bottom .soc a { color: var(--ink-dim); transition: color .15s ease; }
+  .foot-bottom .soc a:hover { color: var(--ink); }
+
+  /* ---------- wordmark big ---------- */
+  .wordmark {
+    font-size: clamp(120px, 22vw, 320px);
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+    font-weight: 500;
+    background: linear-gradient(180deg, rgba(245,239,230,0.10) 0%, rgba(245,239,230,0.0) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+    margin-top: 60px;
+  }
+  .wordmark .dot {
+    display: inline-block;
+    width: 0.12em;
+    height: 0.12em;
+    background: var(--orange);
+    border-radius: 999px;
+    transform: translateY(-0.05em);
+    margin-left: 0.05em;
+  }
+
+  /* ---------- reveal animations ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity .8s cubic-bezier(0.16, 1, 0.3, 1), transform .8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- =================== NAV =================== -->
+<header class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a href="#" class="logo"><b>remindly</b><i></i></a>
+    <nav class="nav-links">
+      <a href="#pain">Why</a>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#customers">Customers</a>
+      <a href="#">Changelog</a>
+    </nav>
+    <div class="nav-right">
+      <a href="/login" class="btn btn-ghost">Sign in</a>
+      <a href="/signup" class="btn btn-primary">Get started</a>
+    </div>
+  </div>
+</header>
+
+<!-- =================== HERO =================== -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <div class="pill">
+        <span class="dot"></span>
+        Now sending WhatsApp + iMessage reminders
+        <b>NEW</b>
+      </div>
+    </div>
+
+    <h1>
+      Appointment reminders<br/>
+      that <span class="serif accent">actually</span> show up.
+    </h1>
+
+    <p class="hero-sub">
+      Remindly is the SMS reminder system for small service businesses. Cut no-shows by up to 80%, fill last-minute gaps automatically, and stop chasing confirmations by hand.
+    </p>
+
+    <form class="email-form" onsubmit="handleSignup(event)">
+      <input type="email" placeholder="you@business.com" required aria-label="Email" />
+      <button type="submit">Start free
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </form>
+
+    <div class="hero-fineprint">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 14-day free trial</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> No credit card</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Cancel anytime</span>
+    </div>
+
+    <!-- showcase -->
+    <div class="showcase">
+      <div class="float-card fc-1">
+        <div class="label">No-shows this month</div>
+        <div class="value">2.1% <span class="delta">↓ 87%</span></div>
+      </div>
+
+      <div class="float-card fc-2">
+        <div class="label">Revenue recovered</div>
+        <div class="value">$11,420 <span class="delta">↑ this wk</span></div>
+      </div>
+
+      <div class="float-card fc-3">
+        <div class="label">Channels</div>
+        <div class="channels">
+          <div class="chan active" title="SMS"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+          <div class="chan active" title="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.768.967-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884"/></svg></div>
+          <div class="chan" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+        </div>
+      </div>
+
+      <div class="float-card fc-4">
+        <div class="label">Confirmed today</div>
+        <div class="row">
+          <div class="av" style="background:#7e57c2">SM</div>
+          <span class="nm">Sara M.</span>
+          <span class="st">✓ Confirmed</span>
+        </div>
+        <div class="row">
+          <div class="av" style="background:#42a5f5">DK</div>
+          <span class="nm">Devon K.</span>
+          <span class="st">✓ Confirmed</span>
+        </div>
+        <div class="row">
+          <div class="av" style="background:#26a69a">AR</div>
+          <span class="nm">Aria R.</span>
+          <span class="st">✓ Confirmed</span>
+        </div>
+      </div>
+
+      <!-- phone -->
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="phone-status">
+            <span>9:41</span>
+            <span class="icons">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 16h2v4H2zM6 12h2v8H6zM10 8h2v12h-2zM14 4h2v16h-2zM18 0h2v20h-2z"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="18" height="10" rx="2" ry="2"/><rect x="21" y="10" width="2" height="4" rx="0.5"/></svg>
+            </span>
+          </div>
+
+          <div class="sms-header">
+            <div class="sms-avatar">B</div>
+            <b>Bloom Hair Studio</b>
+            <span>via Remindly · text message</span>
+          </div>
+
+          <div class="sms-thread">
+            <div class="sms-time">Today 9:00 AM</div>
+            <div class="sms in">
+              Hi Maya! Just a reminder you have a <b>cut + color</b> with Chloe tomorrow at <b>2:30 PM</b> at Bloom Hair.
+              Reply <b>YES</b> to confirm or <b>R</b> to reschedule. ✂️
+            </div>
+            <div class="sms-time">Today 9:14 AM</div>
+            <div class="sms out">YES</div>
+            <div class="sms in">
+              You're all set 🌸 We'll see you tomorrow at 2:30. Reply STOP to opt out.
+              <small>Sent via Remindly</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== LOGO STRIP =================== -->
+<div class="logos" id="customers">
+  <div class="wrap logos-inner">
+    <div class="logos-label">Trusted by 4,200+ businesses</div>
+    <div class="logos-row">
+      <span class="lg">◐ Bloom Studio</span>
+      <span class="lg">✦ Forge Athletics</span>
+      <span class="lg">▲ Northgate Dental</span>
+      <span class="lg">◇ Mason &amp; Co.</span>
+      <span class="lg">● Lumen Spa</span>
+      <span class="lg">◆ Roca Pilates</span>
+    </div>
+  </div>
+</div>
+
+<!-- =================== PAIN =================== -->
+<section class="bay pain" id="pain">
+  <div class="wrap">
+    <div class="bay-header">
+      <div>
+        <div class="eyebrow">The problem</div>
+        <h2 style="margin-top:18px">No-shows are quietly bleeding <span class="serif" style="color:var(--orange)">your business dry.</span></h2>
+      </div>
+      <div class="right">
+        Every empty chair, treatment room, or training slot is gone forever. For a busy salon, that's roughly $40,000 of lost revenue a year — and you're spending hours every week chasing confirmations to prevent it.
+      </div>
+    </div>
+
+    <div class="pain-grid">
+      <div class="pain-card reveal">
+        <div>
+          <div class="pain-stat">23<span class="unit">%</span></div>
+          <div class="title">Industry-average no-show rate</div>
+          <div class="desc">Without automated reminders, nearly one in four bookings disappears — costing the average independent stylist or trainer $400 per missed appointment.</div>
+        </div>
+        <div class="source">IBISWorld · 2025 services report</div>
+      </div>
+
+      <div class="pain-card reveal">
+        <div>
+          <div class="pain-stat">4.2<span class="unit">hrs</span></div>
+          <div class="title">Wasted weekly on confirmations</div>
+          <div class="desc">Calling, texting and DMing clients to confirm appointments steals half a day a week — time you could be billing for, or actually closed.</div>
+        </div>
+        <div class="source">Remindly customer survey · n=812</div>
+      </div>
+
+      <div class="pain-card reveal">
+        <div>
+          <div class="pain-stat">$<span style="color:var(--orange);-webkit-text-fill-color:var(--orange);">38k</span></div>
+          <div class="title">Lost per chair, per year</div>
+          <div class="desc">For salons, gyms and clinics, every unfilled slot compounds. The math is brutal — and almost entirely preventable with a 5-minute setup.</div>
+        </div>
+        <div class="source">Average across 4,200+ Remindly accounts</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== HOW IT WORKS =================== -->
+<section class="bay hiw" id="how">
+  <div class="wrap">
+    <div class="bay-header">
+      <div>
+        <div class="eyebrow">How it works</div>
+        <h2 style="margin-top:18px">Set it up <span class="serif" style="color:var(--orange)">once.</span><br/>Forget it forever.</h2>
+      </div>
+      <div class="right">
+        Most customers are sending reminders within five minutes of signing up. We connect to the calendar you already use, learn your tone, and quietly handle the rest in the background — no Zapier, no spreadsheets, no babysitting.
+      </div>
+    </div>
+
+    <div class="hiw-list">
+      <div class="step">
+        <div class="step-num">/ 01</div>
+        <div>
+          <div class="step-title">Connect your calendar.</div>
+          <div class="step-desc">One-click integrations with Google Calendar, Apple Calendar, Calendly, Square Appointments, Acuity, Vagaro, Mindbody and Fresha. We pick up new bookings the moment they appear.</div>
+        </div>
+        <div class="step-visual vis">
+          <div class="vis-cap"><span>Integrations</span><b>8 connected</b></div>
+          <div class="vis-row"><div class="vis-ico" style="background:#4285f4">G</div><span class="nm">Google Calendar</span><span class="pill-sm">Synced</span></div>
+          <div class="vis-row"><div class="vis-ico" style="background:#000">◉</div><span class="nm">Square Appointments</span><span class="pill-sm">Synced</span></div>
+          <div class="vis-row"><div class="vis-ico" style="background:#cf3aa3">A</div><span class="nm">Acuity Scheduling</span><span class="pill-sm">Synced</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">/ 02</div>
+        <div>
+          <div class="step-title">Make it sound like you.</div>
+          <div class="step-desc">Choose your timing, tone and channels. Send a friendly nudge 48 hours before, a no-nonsense confirm at 9am day-of, and a "we miss you" if they ghost. Edit any message in plain English.</div>
+        </div>
+        <div class="step-visual vis">
+          <div class="vis-cap"><span>Reminder schedule</span><b>Hair & Beauty</b></div>
+          <div class="vis-knobs">
+            <div class="vis-knob"><b>When</b>48h · 24h · 2h
+              <div class="v"><span class="on">48h</span><span class="on">24h</span><span class="on">2h</span><span>15m</span></div>
+            </div>
+            <div class="vis-knob"><b>Channel</b>SMS-first
+              <div class="v"><span class="on">SMS</span><span class="on">WhatsApp</span><span>Email</span></div>
+            </div>
+            <div class="vis-knob"><b>Tone</b>Warm
+              <div class="v"><span>Pro</span><span class="on">Warm</span><span>Playful</span></div>
+            </div>
+            <div class="vis-knob"><b>Language</b>Auto
+              <div class="v"><span class="on">EN</span><span class="on">ES</span><span>FR</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">/ 03</div>
+        <div>
+          <div class="step-title">We text. They reply. Done.</div>
+          <div class="step-desc">Clients reply YES, R for reschedule, or anything else — Remindly understands it. Confirms get logged. Reschedules go to a one-tap link. Cancellations open the slot back up for your waitlist, automatically.</div>
+        </div>
+        <div class="step-visual vis">
+          <div class="vis-cap"><span>Live · today</span><b>54 sent / 51 confirmed</b></div>
+          <div class="vis-row"><div class="vis-ico" style="background:#26a69a">AR</div><span class="nm">Aria R. · 3:00 PM</span><span class="meta" style="color:#4ade80">YES ✓</span></div>
+          <div class="vis-row"><div class="vis-ico" style="background:#7e57c2">SM</div><span class="nm">Sara M. · 4:30 PM</span><span class="meta" style="color:#4ade80">YES ✓</span></div>
+          <div class="vis-row"><div class="vis-ico" style="background:#ef6c00">DK</div><span class="nm">Devon K. · 5:15 PM</span><span class="meta" style="color:#fbbf24">REBOOK →</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">/ 04</div>
+        <div>
+          <div class="step-title">Watch no-shows fall off a cliff.</div>
+          <div class="step-desc">Most customers see their no-show rate drop below 5% in the first week. We send you a weekly recap with what got booked, what got recovered, and exactly how much money came back.</div>
+        </div>
+        <div class="step-visual vis">
+          <div class="vis-cap"><span>No-show rate · last 6 weeks</span><b style="color:#4ade80">↓ 87%</b></div>
+          <div class="vis-chart">
+            <div class="bars">
+              <div class="bar dim" style="height: 95%"></div>
+              <div class="bar dim" style="height: 88%"></div>
+              <div class="bar" style="height: 42%"></div>
+              <div class="bar" style="height: 28%"></div>
+              <div class="bar" style="height: 18%"></div>
+              <div class="bar" style="height: 12%"></div>
+            </div>
+            <div class="labels">
+              <span>W-5</span><span>W-4</span><span>W-3</span><span>W-2</span><span>W-1</span><span>NOW</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== PRICING =================== -->
+<section class="bay pricing" id="pricing">
+  <div class="wrap">
+    <div class="bay-header">
+      <div>
+        <div class="eyebrow">Pricing</div>
+        <h2 style="margin-top:18px">Pays for itself <span class="serif" style="color:var(--orange)">in one</span> saved booking.</h2>
+      </div>
+      <div class="right">
+        Simple monthly pricing, no per-message fees, no setup costs. Switch tiers any time. Annual plans save 20%. SMS + WhatsApp + email included on every plan.
+      </div>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="tier-head"><div class="tier-name">Solo</div></div>
+        <div class="tier-desc">For independent stylists, trainers and therapists running their own book.</div>
+        <div class="price-amt"><span class="cur">$</span><span class="amt">19</span><span class="per">/mo</span></div>
+        <div class="billed">Billed monthly · cancel anytime</div>
+        <a href="/signup" class="btn btn-lg cta outline">Start free trial</a>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Up to <b>150 appointments</b>/mo</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>SMS + email reminders</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>1 calendar integration</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Two-way reply handling</span></li>
+        </ul>
+      </div>
+
+      <div class="price-card featured">
+        <div class="tier-head"><div class="tier-name">Studio</div><div class="tier-tag">Most popular</div></div>
+        <div class="tier-desc">For salons, clinics and small studios with multiple service providers.</div>
+        <div class="price-amt"><span class="cur">$</span><span class="amt">49</span><span class="per">/mo</span></div>
+        <div class="billed">Billed monthly · 14-day free trial</div>
+        <a href="/signup" class="btn btn-lg cta">Start free trial</a>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Up to <b>1,000 appointments</b>/mo</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>SMS + WhatsApp + email + voice</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Unlimited integrations &amp; staff</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>Smart waitlist</b> fills cancellations</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Review &amp; rebooking nudges</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Priority support</span></li>
+        </ul>
+      </div>
+
+      <div class="price-card">
+        <div class="tier-head"><div class="tier-name">Business</div></div>
+        <div class="tier-desc">For multi-location operators and growing service brands with a team.</div>
+        <div class="price-amt"><span class="cur">$</span><span class="amt">129</span><span class="per">/mo</span></div>
+        <div class="billed">Per location · volume discounts available</div>
+        <a href="#" class="btn btn-lg cta outline">Talk to sales</a>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span><b>Unlimited</b> appointments</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Multi-location dashboards</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Custom number &amp; sender ID</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>API access &amp; webhooks</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>HIPAA-ready BAA</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Dedicated success manager</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== TESTIMONIALS =================== -->
+<section class="bay test">
+  <div class="wrap">
+    <div class="bay-header">
+      <div>
+        <div class="eyebrow">Customers</div>
+        <h2 style="margin-top:18px">4,200 owners.<br/><span class="serif" style="color:var(--orange)">One million</span> reminders a month.</h2>
+      </div>
+      <div class="right">
+        From two-chair barbershops to twelve-location dental groups — Remindly runs in the background everywhere appointments matter. Here's what owners say about it.
+      </div>
+    </div>
+
+    <div class="test-grid">
+      <div class="test-card big">
+        <div class="quote big">
+          "We went from <span class="hl">17% no-shows to under 3%</span> in the first month. Remindly literally paid for our new shampoo station — and I got my Sundays back."
+        </div>
+        <div class="who">
+          <div class="av" style="background:#e8502a">CR</div>
+          <div class="who-info">
+            <div class="nm">Cassidy Reyes</div>
+            <div class="ti">Owner · Bloom Hair Studio, Austin</div>
+          </div>
+        </div>
+        <div class="stat-strip">
+          <div class="s"><b>83%</b><span>No-show drop</span></div>
+          <div class="s"><b>$14k</b><span>Recovered/mo</span></div>
+          <div class="s"><b>5 min</b><span>Setup time</span></div>
+        </div>
+      </div>
+
+      <div class="test-card med">
+        <div class="quote">
+          "I run a one-person training studio. Before Remindly I'd lose <span class="hl">two sessions a week</span> to no-shows. Now I lose maybe two a month. It's the cheapest employee I've ever hired."
+        </div>
+        <div class="who">
+          <div class="av" style="background:#7e57c2">MT</div>
+          <div class="who-info">
+            <div class="nm">Marco Torres</div>
+            <div class="ti">Founder · Forge Athletics</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-card sm">
+        <div class="quote">
+          "Patients actually reply now. The WhatsApp option was the unlock for our Spanish-speaking families."
+        </div>
+        <div class="who">
+          <div class="av" style="background:#26a69a">DR</div>
+          <div class="who-info">
+            <div class="nm">Dr. Priya Raman</div>
+            <div class="ti">Northgate Family Dental</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-card sm">
+        <div class="quote">
+          "The waitlist auto-fill is magic. A cancellation comes in and the slot is rebooked before I see the notification."
+        </div>
+        <div class="who">
+          <div class="av" style="background:#42a5f5">LK</div>
+          <div class="who-info">
+            <div class="nm">Lena Kowalski</div>
+            <div class="ti">Owner · Lumen Spa, Brooklyn</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-card sm">
+        <div class="quote">
+          "Switched from three different tools. Remindly does it all and the texts <em>actually sound human</em>."
+        </div>
+        <div class="who">
+          <div class="av" style="background:#ef6c00">JS</div>
+          <div class="who-info">
+            <div class="nm">Jordan Shah</div>
+            <div class="ti">GM · Mason &amp; Co. Barber</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== CTA =================== -->
+<section class="cta" id="cta">
+  <div class="wrap">
+    <div class="eyebrow center" style="justify-content:center; display:inline-flex;">Start in 5 minutes</div>
+    <h2 style="margin-top:20px">
+      Never lose<br/>
+      a booking <span class="serif" style="color:var(--orange)">again.</span>
+    </h2>
+    <p>Free for 14 days. No credit card. Cancel with one click. Your first reminder goes out tonight.</p>
+    <form class="email-form" onsubmit="handleSignup(event)">
+      <input type="email" placeholder="you@business.com" required aria-label="Email" />
+      <button type="submit">Start free
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </form>
+    <div class="hero-fineprint" style="margin-top: 18px;">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> SOC 2 Type II</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> HIPAA-ready</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> 4.9/5 on Capterra</span>
+    </div>
+    <div class="wordmark">remindly<span class="dot"></span></div>
+  </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="foot-brand">
+        <a href="#" class="logo"><b>remindly</b><i></i></a>
+        <p>Appointment reminders for small service businesses. Built in Austin, TX.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#">Integrations</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>For</h4>
+        <ul>
+          <li><a href="#">Salons</a></li>
+          <li><a href="#">Trainers</a></li>
+          <li><a href="#">Dentists &amp; clinics</a></li>
+          <li><a href="#">Spas</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Customers</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Help center</a></li>
+          <li><a href="#">No-show calculator</a></li>
+          <li><a href="#">Terms</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Remindly, Inc. All rights reserved.</span>
+      <div class="soc">
+        <a href="#" aria-label="X">𝕏</a>
+        <a href="#" aria-label="LinkedIn">in</a>
+        <a href="#" aria-label="Instagram">◎</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Nav border on scroll
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 8);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Reveal-on-scroll
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    }
+  }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Email form → redirect to signup with email pre-filled
+  function handleSignup(e) {
+    e.preventDefault();
+    const email = e.currentTarget.querySelector('input').value.trim();
+    if (!email) return;
+    window.location.href = '/signup?email=' + encodeURIComponent(email);
+  }
+</script>
+
+</body>
+</html>
