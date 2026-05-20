@@ -128,7 +128,7 @@ export default function NewAppointmentPage() {
   // Generate 14 upcoming date chips
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
-  const dateChips = Array.from({ length: 14 }, (_, i) => {
+  const dateChips = Array.from({ length: 60 }, (_, i) => {
     const d = new Date(todayStart.getTime() + i * 86_400_000);
     return {
       value: toDateStr(d),
