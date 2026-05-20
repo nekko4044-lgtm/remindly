@@ -10,6 +10,7 @@ import {
   Settings,
   CreditCard,
   LogOut,
+  X,
 } from "lucide-react";
 
 const WORKSPACE = [
@@ -33,9 +34,11 @@ function initials(name: string) {
 interface Props {
   email: string;
   businessName: string;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export default function DashboardSidebar({ email, businessName }: Props) {
+export default function DashboardSidebar({ email, businessName, mobileOpen, onMobileClose }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
@@ -51,6 +54,7 @@ export default function DashboardSidebar({ email, businessName }: Props) {
     return (
       <Link
         href={href}
+        onClick={onMobileClose}
         className={`flex items-center gap-3 px-2.5 py-2 rounded-lg text-[13.5px] font-medium transition-all ${
           active
             ? "bg-[#1a1a1a] text-white shadow-[inset_0_0_0_1px_#2a2a2a]"
@@ -66,13 +70,27 @@ export default function DashboardSidebar({ email, businessName }: Props) {
   }
 
   return (
-    <aside className="w-60 bg-[#0d0d0d] border-r border-[#2a2a2a] flex flex-col h-screen sticky top-0 shrink-0">
-      {/* Brand */}
-      <div className="px-6 h-16 flex items-center border-b border-[#2a2a2a]">
+    <aside
+      className={`w-60 bg-[#0d0d0d] border-r border-[#2a2a2a] flex flex-col h-screen shrink-0 z-40
+        transition-transform duration-300
+        fixed md:sticky md:top-0 md:translate-x-0
+        ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+    >
+      {/* Brand + mobile close */}
+      <div className="px-6 h-16 flex items-center justify-between border-b border-[#2a2a2a]">
         <span className="font-bold text-white text-lg tracking-tight">
           NoShow
           <span className="inline-block w-1.5 h-1.5 bg-[#e8502a] rounded-full ml-0.5 translate-y-[-3px]" />
         </span>
+        {onMobileClose && (
+          <button
+            onClick={onMobileClose}
+            className="md:hidden p-1 text-[#6b6b6b] hover:text-white transition-colors"
+            aria-label="Close menu"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
