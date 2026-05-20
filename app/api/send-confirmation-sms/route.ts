@@ -12,6 +12,11 @@ export async function POST(req: NextRequest) {
 
   const { appointmentId } = await req.json();
 
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!appointmentId || !UUID_RE.test(appointmentId)) {
+    return NextResponse.json({ error: "Invalid appointment ID" }, { status: 400 });
+  }
+
   // Service role client for fetching joined data
   const supabase = createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -17,6 +17,12 @@ export async function POST(req: NextRequest) {
   const { Resend } = await import("resend");
   const resend = new Resend(process.env.RESEND_API_KEY);
 
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  const safeClientName = esc(String(clientName ?? ""));
+  const safeServiceName = esc(String(serviceName ?? ""));
+
   const date = new Date(scheduledAt);
   const formatted = date.toLocaleString([], {
     weekday: "long",
@@ -38,7 +44,7 @@ export async function POST(req: NextRequest) {
     from: "NoShow <hello@noshow.pro>",
     replyTo: "hello@noshow.pro",
     to: clientEmail,
-    subject: `Appointment confirmed — ${serviceName}`,
+    subject: `Appointment confirmed — ${safeServiceName}`,
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#111111;color:#ffffff;border-radius:12px;">
         <div style="margin-bottom:24px;">
@@ -46,11 +52,11 @@ export async function POST(req: NextRequest) {
           <span style="display:inline-block;width:6px;height:6px;background:#e8502a;border-radius:50%;margin-left:2px;vertical-align:super;"></span>
         </div>
         <h2 style="margin:0 0 8px;color:#ffffff;">Your appointment is confirmed</h2>
-        <p style="color:#888888;margin:0 0 24px;">Hi ${clientName}, here are your appointment details:</p>
+        <p style="color:#888888;margin:0 0 24px;">Hi ${safeClientName}, here are your appointment details:</p>
         <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
           <tr>
             <td style="padding:10px 0;color:#888888;font-size:14px;border-bottom:1px solid #2a2a2a;">Service</td>
-            <td style="padding:10px 0;font-size:14px;font-weight:600;color:#ffffff;border-bottom:1px solid #2a2a2a;">${serviceName}</td>
+            <td style="padding:10px 0;font-size:14px;font-weight:600;color:#ffffff;border-bottom:1px solid #2a2a2a;">${safeServiceName}</td>
           </tr>
           <tr>
             <td style="padding:10px 0;color:#888888;font-size:14px;">Date &amp; Time</td>
