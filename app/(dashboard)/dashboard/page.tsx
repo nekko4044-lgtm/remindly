@@ -318,7 +318,7 @@ function StatCard({
         </span>
         {label}
       </div>
-      <div className="text-[30px] font-semibold tracking-tight leading-none mb-2 flex items-baseline gap-1">
+      <div className="text-[30px] font-semibold tracking-tight leading-none mb-2 flex items-baseline gap-1 text-white">
         {value}
         {unit && <span className="text-[18px] text-[#a3a3a3] font-medium">{unit}</span>}
       </div>

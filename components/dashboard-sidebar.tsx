@@ -68,18 +68,11 @@ export default function DashboardSidebar({ email, businessName }: Props) {
   return (
     <aside className="w-60 bg-[#0d0d0d] border-r border-[#2a2a2a] flex flex-col h-screen sticky top-0 shrink-0">
       {/* Brand */}
-      <div className="flex items-center gap-2.5 px-[22px] py-[22px] border-b border-[#2a2a2a]">
-        <div className="w-[30px] h-[30px] rounded-lg bg-[#e8502a] flex items-center justify-center text-white font-bold text-[15px] tracking-tight shadow-[0_4px_14px_-4px_rgba(232,80,42,0.5)] shrink-0">
-          N
-        </div>
-        <div>
-          <div className="text-[16px] font-semibold tracking-tight text-white leading-none">
-            NoShow
-          </div>
-          <div className="text-[11px] text-[#6b6b6b] mt-0.5 tracking-wide truncate max-w-[140px]">
-            {businessName}
-          </div>
-        </div>
+      <div className="px-6 h-16 flex items-center border-b border-[#2a2a2a]">
+        <span className="font-bold text-white text-lg tracking-tight">
+          NoShow
+          <span className="inline-block w-1.5 h-1.5 bg-[#e8502a] rounded-full ml-0.5 translate-y-[-3px]" />
+        </span>
       </div>
 
       {/* Navigation */}
