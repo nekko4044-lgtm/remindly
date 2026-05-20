@@ -30,7 +30,7 @@ export default function DashboardShell({ email, businessName, children }: Props)
         onMobileClose={() => setSidebarOpen(false)}
       />
 
-      <main className="flex-1 overflow-auto flex flex-col w-full min-w-0">
+      <main className="flex-1 overflow-auto overflow-x-hidden flex flex-col w-full min-w-0">
         <DashboardTopbar onMenuClick={() => setSidebarOpen(true)} />
         {children}
       </main>

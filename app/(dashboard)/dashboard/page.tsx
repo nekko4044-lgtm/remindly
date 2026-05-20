@@ -109,7 +109,7 @@ export default async function DashboardPage() {
   const maxTotal = Math.max(...weeks.map((w) => w.total), 1);
 
   return (
-    <div className="p-8 max-w-[1400px]">
+    <div className="p-4 sm:p-8 max-w-[1400px]">
       {/* Page header */}
       <div className="flex items-end justify-between gap-6 mb-7 flex-wrap">
         <div>
@@ -156,7 +156,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Chart + This week at a glance */}
-      <div className="grid gap-4 mb-6" style={{ gridTemplateColumns: "1.6fr 1fr" }}>
+      <div className="grid gap-4 mb-6 grid-cols-1 lg:grid-cols-[1.6fr_1fr]">
         {/* Bar chart */}
         <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] overflow-hidden">
           <div className="px-5 py-[18px] flex items-center justify-between gap-4 border-b border-[#2a2a2a]">

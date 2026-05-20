@@ -116,7 +116,7 @@ export default function ClientsPage() {
   }
 
   return (
-    <div className="p-8 max-w-[1400px]">
+    <div className="p-4 sm:p-8 max-w-[1400px]">
       {/* Page header */}
       <div className="flex items-end justify-between gap-6 mb-7 flex-wrap">
         <div>

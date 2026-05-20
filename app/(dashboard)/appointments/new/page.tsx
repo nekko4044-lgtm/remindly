@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import type { Client } from "@/lib/types";
-import { ChevronDown, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ClientWithCount = Client & { appointments_count: number };
@@ -113,9 +113,6 @@ export default function NewAppointmentPage() {
 
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [timeOpen, setTimeOpen] = useState(false);
-  const timeRef = useRef<HTMLDivElement>(null);
-  const timeListRef = useRef<HTMLUListElement>(null);
   const dateScrollRef = useRef<HTMLDivElement>(null);
 
   function scrollDates(dir: "left" | "right") {
@@ -159,18 +156,10 @@ export default function NewAppointmentPage() {
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setClientOpen(false);
-      if (timeRef.current && !timeRef.current.contains(e.target as Node)) setTimeOpen(false);
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
-
-  useEffect(() => {
-    if (timeOpen && time && timeListRef.current) {
-      const selected = timeListRef.current.querySelector<HTMLElement>('[data-selected="true"]');
-      if (selected) selected.scrollIntoView({ block: "nearest" });
-    }
-  }, [timeOpen]); // eslint-disable-line
 
   const filteredClients = clients.filter((c) =>
     c.name.toLowerCase().includes(clientSearch.toLowerCase())
@@ -222,7 +211,7 @@ export default function NewAppointmentPage() {
   }
 
   return (
-    <div className="p-8 max-w-[1400px]">
+    <div className="p-4 sm:p-8 max-w-[1400px]">
       {/* Page header */}
       <div className="flex items-end justify-between gap-6 mb-7 flex-wrap">
         <div>
@@ -234,7 +223,7 @@ export default function NewAppointmentPage() {
         </button>
       </div>
 
-      <div className="grid gap-6 items-start" style={{ gridTemplateColumns: "1.4fr 1fr" }}>
+      <div className="grid gap-6 items-start grid-cols-1 lg:grid-cols-[1.4fr_1fr]">
         {/* Form */}
         <form onSubmit={handleSubmit} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-7">
 
@@ -307,7 +296,7 @@ export default function NewAppointmentPage() {
 
           {/* Service */}
           <Section title="Service" hint="What are you booking them in for?">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Service" required>
                 <input value={serviceName} onChange={(e) => setServiceName(e.target.value)} className={inputCls} placeholder="e.g. Haircut" />
               </Field>
@@ -368,37 +357,20 @@ export default function NewAppointmentPage() {
               </div>
             </Field>
 
-            <div className="grid grid-cols-2 gap-3 mt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
               {/* Time */}
               <Field label="Time" required>
-                <div className="relative" ref={timeRef}>
-                  <button
-                    type="button"
-                    onClick={() => setTimeOpen((o) => !o)}
-                    className={cn(inputCls, "flex items-center justify-between text-left", time ? "text-white" : "text-[#6b6b6b]")}
-                  >
-                    {time ? selectedTimeLabel : "Pick a time"}
-                    <Clock className="w-4 h-4 text-[#6b6b6b] shrink-0" />
-                  </button>
-                  {timeOpen && (
-                    <div className="absolute z-10 mt-1 w-full bg-[#1f1f1f] border border-[#2a2a2a] rounded-xl shadow-2xl overflow-hidden">
-                      <ul ref={timeListRef} className="max-h-[220px] overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#3a3a3a]">
-                        {TIME_OPTIONS.map(({ value: tv, label: tl }) => (
-                          <li key={tv}>
-                            <button
-                              type="button"
-                              data-selected={time === tv ? "true" : undefined}
-                              onClick={() => { setTime(tv); setTimeOpen(false); }}
-                              className={cn("w-full text-left px-4 py-2 text-sm font-mono transition-colors", time === tv ? "bg-[#e8502a] text-white" : "text-[#a3a3a3] hover:bg-[#e8502a]/10 hover:text-white")}
-                            >
-                              {tl}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
+                <select
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className={cn(selectCls, !time && "text-[#6b6b6b]")}
+                  style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center", backgroundSize: "14px", paddingRight: "36px" }}
+                >
+                  <option value="">Pick a time</option>
+                  {TIME_OPTIONS.map(({ value: tv, label: tl }) => (
+                    <option key={tv} value={tv}>{tl}</option>
+                  ))}
+                </select>
               </Field>
 
               {/* Timezone */}
