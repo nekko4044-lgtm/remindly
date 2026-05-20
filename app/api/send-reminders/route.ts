@@ -132,5 +132,17 @@ export async function GET(req: NextRequest) {
 
   await Promise.all(tasks);
 
-  return NextResponse.json({ ok: true, ...results });
+  return NextResponse.json({
+    ok: true,
+    ...results,
+    debug: {
+      now: now.toISOString(),
+      window24hStart: window24hStart.toISOString(),
+      window24hEnd: window24hEnd.toISOString(),
+      appointments24h: due24h?.length ?? 0,
+      appointments2h: due2h?.length ?? 0,
+      raw24h: due24h,
+      raw2h: due2h,
+    },
+  });
 }
