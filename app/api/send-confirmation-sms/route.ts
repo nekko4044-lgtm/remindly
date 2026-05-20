@@ -1,18 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient as createServerClient } from "@/lib/supabase-server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 export async function POST(req: NextRequest) {
+  // Verify the caller is an authenticated user
+  const supabaseAuth = createServerClient();
+  const { data: { user } } = await supabaseAuth.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { appointmentId } = await req.json();
 
-  const supabase = createClient(
+  // Service role client for fetching joined data
+  const supabase = createAdminClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
+  // Ownership check: appointment must belong to the authenticated user
   const { data: apt } = await supabase
     .from("appointments")
     .select("*, client:clients(name, phone), user:users(business_name)")
     .eq("id", appointmentId)
+    .eq("user_id", user.id)
     .single();
 
   if (!apt?.client?.phone) {

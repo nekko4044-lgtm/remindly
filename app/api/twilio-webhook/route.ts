@@ -1,21 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const params = new URLSearchParams(body);
+
+  // Validate the request actually came from Twilio
+  const sig = req.headers.get("x-twilio-signature") ?? "";
+  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "";
+  const proto = req.headers.get("x-forwarded-proto") ?? "https";
+  const webhookUrl = `${proto}://${host}/api/twilio-webhook`;
+
+  const paramsObj: Record<string, string> = {};
+  params.forEach((value, key) => { paramsObj[key] = value; });
+
+  const { validateRequest } = await import("twilio");
+  const isValid = validateRequest(
+    process.env.TWILIO_AUTH_TOKEN!,
+    sig,
+    webhookUrl,
+    paramsObj
+  );
+
+  if (!isValid) {
+    return new NextResponse("Forbidden", { status: 403 });
+  }
+
   const from = params.get("From") ?? "";
   const messageBody = (params.get("Body") ?? "").trim().toUpperCase();
 
   if (!from) {
-    return new NextResponse("<?xml version='1.0' encoding='UTF-8'?><Response/>", {
-      headers: { "Content-Type": "text/xml" },
-    });
+    return twimlResponse("");
   }
 
-  const supabase = createClient();
+  // Use service role key so queries work regardless of RLS auth context
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 
-  // Find the most recent upcoming appointment for this phone number
   const { data: clients } = await supabase
     .from("clients")
     .select("id")
