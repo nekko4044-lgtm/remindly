@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 
 export async function GET(req: NextRequest) {
+  console.log('1. CRON STARTED');
+
   const auth = req.headers.get("authorization");
   const secret = auth?.replace("Bearer ", "");
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  console.log('2. AUTH PASSED');
 
   const supabase = createClient();
   const now = new Date();
@@ -33,6 +36,11 @@ export async function GET(req: NextRequest) {
       .gte("scheduled_at", window2hStart.toISOString())
       .lte("scheduled_at", window2hEnd.toISOString()),
   ]);
+  console.log('3. APPOINTMENTS FOUND 24h:', due24h?.length, JSON.stringify(due24h));
+  console.log('3. APPOINTMENTS FOUND 2h:', due2h?.length, JSON.stringify(due2h));
+  if (!due24h?.length && !due2h?.length) {
+    console.log('4. NO APPOINTMENTS - window 24h:', window24hStart.toISOString(), window24hEnd.toISOString(), '| window 2h:', window2hStart.toISOString(), window2hEnd.toISOString());
+  }
 
   const twilio = (await import("twilio")).default;
   const twilioClient = twilio(
@@ -50,6 +58,7 @@ export async function GET(req: NextRequest) {
     type: "sms_24h" | "sms_2h"
   ) {
     try {
+      console.log('5. SENDING SMS to:', phone);
       await twilioClient.messages.create({
         from: process.env.TWILIO_PHONE_NUMBER,
         to: phone,
