@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import type { Client } from "@/lib/types";
-import { ChevronDown, Clock } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ClientWithCount = Client & { appointments_count: number };
@@ -116,6 +116,11 @@ export default function NewAppointmentPage() {
   const [timeOpen, setTimeOpen] = useState(false);
   const timeRef = useRef<HTMLDivElement>(null);
   const timeListRef = useRef<HTMLUListElement>(null);
+  const dateScrollRef = useRef<HTMLDivElement>(null);
+
+  function scrollDates(dir: "left" | "right") {
+    dateScrollRef.current?.scrollBy({ left: dir === "right" ? 240 : -240, behavior: "smooth" });
+  }
   const [timezone, setTimezone] = useState(TIMEZONES[0]);
 
   const [serviceName, setServiceName] = useState("");
@@ -315,27 +320,51 @@ export default function NewAppointmentPage() {
           {/* When */}
           <Section title="When" hint="Pick a date and time. Reminders go out automatically 24 hours before.">
             <Field label="Date" required>
-              {/* Horizontal date chips */}
-              <div className="flex gap-1.5 overflow-x-auto pb-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#2a2a2a]">
-                {dateChips.map(({ value, dow, day, month }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setDate(value)}
-                    className={cn(
-                      "flex-shrink-0 w-16 rounded-lg py-2.5 text-center cursor-pointer transition-all border",
-                      date === value
-                        ? "bg-[rgba(232,80,42,0.14)] border-[#e8502a] text-white"
-                        : "bg-[#0d0d0d] border-[#2a2a2a] text-white hover:border-[#353535]"
-                    )}
-                  >
-                    <div className={cn("font-mono text-[10.5px] tracking-[0.04em] uppercase", date === value ? "text-[#ff6a3d]" : "text-[#6b6b6b]")}>
-                      {dow}
-                    </div>
-                    <div className="text-[17px] font-semibold leading-tight mt-0.5">{day}</div>
-                    <div className="text-[10px] text-[#6b6b6b]">{month}</div>
-                  </button>
-                ))}
+              <div className="relative flex items-center gap-1">
+                {/* Left arrow */}
+                <button
+                  type="button"
+                  onClick={() => scrollDates("left")}
+                  className="shrink-0 w-8 h-[76px] rounded-lg bg-[#0d0d0d] border border-[#2a2a2a] flex items-center justify-center text-[#6b6b6b] hover:text-white hover:border-[#353535] transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {/* Scrollable chips */}
+                <div
+                  ref={dateScrollRef}
+                  className="flex gap-1.5 overflow-x-auto flex-1 [&::-webkit-scrollbar]:hidden"
+                  style={{ scrollbarWidth: "none" }}
+                >
+                  {dateChips.map(({ value, dow, day, month }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setDate(value)}
+                      className={cn(
+                        "flex-shrink-0 w-[62px] rounded-lg py-2.5 text-center cursor-pointer transition-all border",
+                        date === value
+                          ? "bg-[rgba(232,80,42,0.14)] border-[#e8502a] text-white"
+                          : "bg-[#0d0d0d] border-[#2a2a2a] text-white hover:border-[#353535]"
+                      )}
+                    >
+                      <div className={cn("font-mono text-[10.5px] tracking-[0.04em] uppercase", date === value ? "text-[#ff6a3d]" : "text-[#6b6b6b]")}>
+                        {dow}
+                      </div>
+                      <div className="text-[17px] font-semibold leading-tight mt-0.5">{day}</div>
+                      <div className="text-[10px] text-[#6b6b6b]">{month}</div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Right arrow */}
+                <button
+                  type="button"
+                  onClick={() => scrollDates("right")}
+                  className="shrink-0 w-8 h-[76px] rounded-lg bg-[#0d0d0d] border border-[#2a2a2a] flex items-center justify-center text-[#6b6b6b] hover:text-white hover:border-[#353535] transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
             </Field>
 
