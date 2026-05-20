@@ -38,7 +38,7 @@ export default function SignupPage() {
     }
 
     const trialEndsAt = new Date();
-    trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+    trialEndsAt.setDate(trialEndsAt.getDate() + 30);
 
     const { error: insertError } = await supabase.from("users").insert({
       id: data.user.id,
@@ -67,7 +67,7 @@ export default function SignupPage() {
             <span className="inline-block w-1.5 h-1.5 bg-[#e8502a] rounded-full ml-0.5 translate-y-[-3px]" />
           </h1>
           <p className="mt-1 text-sm text-[#888888]">
-            Start your 14-day free trial
+            Start your 30-day free trial
           </p>
         </div>
 
