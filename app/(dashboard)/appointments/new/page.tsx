@@ -333,7 +333,7 @@ export default function NewAppointmentPage() {
                 {/* Scrollable chips */}
                 <div
                   ref={dateScrollRef}
-                  className="flex gap-1.5 overflow-x-auto flex-1 [&::-webkit-scrollbar]:hidden"
+                  className="flex gap-1.5 overflow-x-auto flex-1 min-w-0 [&::-webkit-scrollbar]:hidden"
                   style={{ scrollbarWidth: "none" }}
                 >
                   {dateChips.map(({ value, dow, day, month }) => (

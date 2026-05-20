@@ -88,10 +88,21 @@ export default function SettingsPage() {
     "Hi {name}! Reminder: your {service} appointment is tomorrow at {time}. Reply YES to confirm or NO to cancel."
   );
 
+  const [twilioPhone, setTwilioPhone] = useState<string | null>(null);
+  const [phoneLoading, setPhoneLoading] = useState(true);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/settings/phone")
+      .then((r) => r.json())
+      .then((d) => setTwilioPhone(d.phone ?? null))
+      .catch(() => setTwilioPhone(null))
+      .finally(() => setPhoneLoading(false));
+  }, []); // eslint-disable-line
 
   useEffect(() => {
     async function load() {
@@ -111,7 +122,7 @@ export default function SettingsPage() {
       setLoading(false);
     }
     load();
-  }, []); // eslint-disable-line
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -293,8 +304,15 @@ export default function SettingsPage() {
           <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-6">
             <h3 className="text-[14px] font-semibold text-white mb-1">Sender number</h3>
             <p className="text-[12.5px] text-[#6b6b6b] mb-3">
-              SMS reminders are sent from your registered Twilio number. To change it, update <code className="font-mono text-[#e8502a] text-[11px]">TWILIO_PHONE_NUMBER</code> in your environment variables.
+              SMS reminders are sent from this number. Your clients will see it when they receive a text.
             </p>
+            <div className="font-mono text-[15px] font-medium text-white">
+              {phoneLoading
+                ? <span className="text-[#6b6b6b] text-[13px]">Loading…</span>
+                : twilioPhone
+                  ? twilioPhone
+                  : <span className="text-[#6b6b6b] text-[13px]">Not configured</span>}
+            </div>
           </div>
         </div>
       </div>
