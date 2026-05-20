@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
 
 export async function GET(req: NextRequest) {
   console.log('1. CRON STARTED');
@@ -11,7 +11,10 @@ export async function GET(req: NextRequest) {
   }
   console.log('2. AUTH PASSED');
 
-  const supabase = createClient();
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
   const now = new Date();
 
   // Wide windows cover all US timezones (UTC-5 to UTC-8) since appointments
