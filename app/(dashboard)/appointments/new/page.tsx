@@ -4,53 +4,64 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import type { Client } from "@/lib/types";
-import { Search, ChevronDown, Calendar as CalendarIcon, Clock } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ChevronDown, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type ClientWithCount = Client & { appointments_count: number };
 
 const TIME_OPTIONS = Array.from({ length: 49 }, (_, i) => {
   const mins = 8 * 60 + i * 15;
-  return `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  const label = `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
+  const value = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  return { value, label };
 });
 
-function toDateStr(d: Date): string {
+const DURATION_OPTIONS = [
+  "30 minutes", "1 hour", "1 hour 30 minutes", "2 hours", "2 hours 30 minutes", "3 hours",
+];
+
+const TIMEZONES = [
+  "(CT) America/Chicago",
+  "(ET) America/New_York",
+  "(MT) America/Denver",
+  "(PT) America/Los_Angeles",
+];
+
+const AVATAR_COLORS = ["#7e57c2","#42a5f5","#66bb6a","#ef5350","#ffa726","#26c6da","#ec407a","#8d6e63"];
+
+function avatarColor(name: string) {
+  let hash = 0;
+  for (const c of name) hash = c.charCodeAt(0) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/);
+  return parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : name.slice(0, 2).toUpperCase();
+}
+
+function toDateStr(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function formatDateDisplay(dateStr: string): string {
-  if (!dateStr) return "Pick a date";
-  return new Date(dateStr + "T12:00:00").toLocaleDateString([], { weekday: "short", month: "short", day: "numeric", year: "numeric" });
-}
-
-function formatTimeDisplay(t: string): string {
-  if (!t) return "—";
-  const [h, m] = t.split(":").map(Number);
-  const ampm = h >= 12 ? "PM" : "AM";
-  return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${ampm}`;
+function formatDateShort(dateStr: string) {
+  if (!dateStr) return "—";
+  return new Date(dateStr + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 }
 
 const inputCls =
   "w-full px-3 py-2.5 bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg text-[14px] text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#e8502a] focus:ring-1 focus:ring-[#e8502a]/40 transition-colors";
 
-const calendarVars = {
-  "--primary": "#e8502a",
-  "--primary-foreground": "#ffffff",
-  "--accent": "#f5f5f5",
-  "--accent-foreground": "#111111",
-  "--muted-foreground": "#777777",
-  "--background": "#ffffff",
-  "--foreground": "#111111",
-  "--border": "#e5e5e5",
-  "--ring": "#e8502a",
-} as React.CSSProperties;
+const selectCls =
+  "w-full px-3 py-2.5 bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg text-[14px] text-white focus:outline-none focus:border-[#e8502a] focus:ring-1 focus:ring-[#e8502a]/40 transition-colors appearance-none cursor-pointer";
 
 function Field({ label, children, required }: { label: string; children: React.ReactNode; required?: boolean }) {
   return (
     <div className="flex flex-col gap-1.5 mb-4 last:mb-0">
-      <label className="text-[12.5px] font-medium text-[#a3a3a3] tracking-[0.005em]">
-        {label}
-        {required && <span className="text-[#e8502a] ml-0.5">*</span>}
+      <label className="text-[12.5px] font-medium text-[#a3a3a3]">
+        {label}{required && <span className="text-[#e8502a] ml-0.5">*</span>}
       </label>
       {children}
     </div>
@@ -68,36 +79,76 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
   );
 }
 
+// Native select with custom chevron
+function Select({ value, onChange, options, placeholder }: {
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  placeholder?: string;
+}) {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={selectCls}
+        style={{ backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center", backgroundSize: "14px", paddingRight: "36px" }}
+      >
+        {placeholder && <option value="">{placeholder}</option>}
+        {options.map((o) => <option key={o} value={o}>{o}</option>)}
+      </select>
+    </div>
+  );
+}
+
 export default function NewAppointmentPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [clients, setClients] = useState<Client[]>([]);
+  const [clients, setClients] = useState<ClientWithCount[]>([]);
   const [clientSearch, setClientSearch] = useState("");
   const [clientOpen, setClientOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [selectedClient, setSelectedClient] = useState<ClientWithCount | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [date, setDate] = useState("");
-  const [dateOpen, setDateOpen] = useState(false);
   const [time, setTime] = useState("");
   const [timeOpen, setTimeOpen] = useState(false);
   const timeRef = useRef<HTMLDivElement>(null);
   const timeListRef = useRef<HTMLUListElement>(null);
+  const [timezone, setTimezone] = useState(TIMEZONES[0]);
 
   const [serviceName, setServiceName] = useState("");
+  const [duration, setDuration] = useState("1 hour");
   const [notes, setNotes] = useState("");
 
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // Generate 14 upcoming date chips
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
+  const dateChips = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date(todayStart.getTime() + i * 86_400_000);
+    return {
+      value: toDateStr(d),
+      dow: d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase(),
+      day: d.getDate(),
+      month: d.toLocaleDateString("en-US", { month: "short" }),
+    };
+  });
 
   useEffect(() => {
-    supabase.from("clients").select("*").order("name").then(({ data }) => {
-      if (data) setClients(data);
-    });
+    supabase
+      .from("clients")
+      .select("*, appointments(count)")
+      .order("name")
+      .then(({ data }) => {
+        if (data) setClients(data.map((c) => ({
+          ...c,
+          appointments_count: (c.appointments as { count: number }[] | null)?.[0]?.count ?? 0,
+        })));
+      });
   }, []); // eslint-disable-line
 
   useEffect(() => {
@@ -120,21 +171,21 @@ export default function NewAppointmentPage() {
     c.name.toLowerCase().includes(clientSearch.toLowerCase())
   );
 
-  // Reminder schedule preview: 24h before
+  // Reminder 24h before
   const reminderDate = date && time
     ? new Date(new Date(`${date}T${time}`).getTime() - 24 * 60 * 60 * 1000).toLocaleString([], {
         weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
       })
     : null;
 
+  const selectedTimeLabel = TIME_OPTIONS.find((t) => t.value === time)?.label ?? "—";
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-
     if (!selectedClient) { setError("Please select a client."); return; }
     if (!serviceName.trim()) { setError("Service name is required."); return; }
     if (!date || !time) { setError("Date and time are required."); return; }
-
     setSaving(true);
 
     const scheduledAt = new Date(`${date}T${time}`).toISOString();
@@ -173,63 +224,75 @@ export default function NewAppointmentPage() {
           <h1 className="text-[26px] font-semibold tracking-tight text-white leading-tight">New appointment</h1>
           <p className="text-[14px] text-[#a3a3a3] mt-1">Schedule a booking and we&apos;ll send a reminder text 24 hours before.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-[13.5px] font-medium text-[#a3a3a3] border border-[#2a2a2a] hover:bg-[#1a1a1a] hover:text-white hover:border-[#353535] transition-all"
-        >
+        <button type="button" onClick={() => router.back()} className="inline-flex items-center h-9 px-3.5 rounded-lg text-[13.5px] font-medium text-[#a3a3a3] border border-[#2a2a2a] hover:bg-[#1a1a1a] hover:text-white transition-all">
           Cancel
         </button>
       </div>
 
       <div className="grid gap-6 items-start" style={{ gridTemplateColumns: "1.4fr 1fr" }}>
-        {/* Form card */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-7">
 
-          <Section title="Client" hint="Pick from your existing clients.">
+          {/* Client */}
+          <Section title="Client" hint="Pick from your existing clients, or add a new one.">
             <Field label="Client" required>
               <div className="relative" ref={dropdownRef}>
-                <button
-                  type="button"
+                {/* Picker trigger */}
+                <div
                   onClick={() => setClientOpen((o) => !o)}
-                  className={cn(inputCls, "flex items-center justify-between text-left", selectedClient ? "text-white" : "text-[#6b6b6b]")}
+                  className={cn(
+                    "flex items-center gap-2.5 px-2 pr-3 py-1.5 bg-[#0d0d0d] border rounded-lg cursor-pointer transition-colors",
+                    clientOpen ? "border-[#e8502a]" : "border-[#2a2a2a] hover:border-[#353535]"
+                  )}
                 >
-                  {selectedClient ? selectedClient.name : "Select a client…"}
+                  {selectedClient ? (
+                    <>
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-semibold shrink-0" style={{ background: avatarColor(selectedClient.name) }}>
+                        {initials(selectedClient.name)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[14px] font-medium text-white">{selectedClient.name}</div>
+                        <div className="text-[12px] text-[#6b6b6b] font-mono">
+                          {selectedClient.phone}{selectedClient.appointments_count > 0 && ` · ${selectedClient.appointments_count} prior appointment${selectedClient.appointments_count !== 1 ? "s" : ""}`}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <span className="flex-1 text-[14px] text-[#6b6b6b] py-1">Select a client…</span>
+                  )}
                   <ChevronDown className="w-4 h-4 text-[#6b6b6b] shrink-0" />
-                </button>
+                </div>
 
                 {clientOpen && (
                   <div className="absolute z-10 mt-1 w-full bg-[#1f1f1f] border border-[#2a2a2a] rounded-lg shadow-2xl overflow-hidden">
                     <div className="p-2 border-b border-[#2a2a2a]">
-                      <div className="relative">
-                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#6b6b6b] pointer-events-none" />
-                        <input
-                          autoFocus
-                          type="text"
-                          value={clientSearch}
-                          onChange={(e) => setClientSearch(e.target.value)}
-                          placeholder="Search clients…"
-                          className="w-full pl-8 pr-3 py-1.5 text-sm bg-[#0d0d0d] border border-[#2a2a2a] rounded-md text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#e8502a]"
-                        />
-                      </div>
+                      <input
+                        autoFocus
+                        type="text"
+                        value={clientSearch}
+                        onChange={(e) => setClientSearch(e.target.value)}
+                        placeholder="Search clients…"
+                        className="w-full px-3 py-1.5 text-sm bg-[#0d0d0d] border border-[#2a2a2a] rounded-md text-white placeholder-[#6b6b6b] focus:outline-none focus:border-[#e8502a]"
+                      />
                     </div>
-                    <ul className="max-h-48 overflow-y-auto">
+                    <ul className="max-h-52 overflow-y-auto">
                       {filteredClients.length === 0 ? (
-                        <li className="px-3 py-2 text-sm text-[#6b6b6b]">No clients found.</li>
-                      ) : (
-                        filteredClients.map((c) => (
-                          <li key={c.id}>
-                            <button
-                              type="button"
-                              onClick={() => { setSelectedClient(c); setClientOpen(false); setClientSearch(""); }}
-                              className={cn("w-full text-left px-3 py-2 text-sm hover:bg-[#e8502a]/10 transition-colors", selectedClient?.id === c.id ? "text-[#e8502a]" : "text-[#a3a3a3]")}
-                            >
-                              <span className="font-medium">{c.name}</span>
-                              <span className="ml-2 text-[#6b6b6b] font-mono text-xs">{c.phone}</span>
-                            </button>
-                          </li>
-                        ))
-                      )}
+                        <li className="px-3 py-2.5 text-sm text-[#6b6b6b]">No clients found.</li>
+                      ) : filteredClients.map((c) => (
+                        <li key={c.id}>
+                          <button
+                            type="button"
+                            onClick={() => { setSelectedClient(c); setClientOpen(false); setClientSearch(""); }}
+                            className={cn("w-full flex items-center gap-2.5 px-3 py-2 hover:bg-[#e8502a]/10 transition-colors", selectedClient?.id === c.id && "bg-[#e8502a]/10")}
+                          >
+                            <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-semibold shrink-0" style={{ background: avatarColor(c.name) }}>
+                              {initials(c.name)}
+                            </div>
+                            <span className="flex-1 text-left text-[13.5px] font-medium text-white">{c.name}</span>
+                            <span className="font-mono text-[12px] text-[#6b6b6b]">{c.phone}</span>
+                          </button>
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 )}
@@ -237,45 +300,47 @@ export default function NewAppointmentPage() {
             </Field>
           </Section>
 
+          {/* Service */}
           <Section title="Service" hint="What are you booking them in for?">
-            <Field label="Service" required>
-              <input
-                value={serviceName}
-                onChange={(e) => setServiceName(e.target.value)}
-                className={inputCls}
-                placeholder="e.g. Haircut, Massage, Consultation…"
-              />
-            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Service" required>
+                <input value={serviceName} onChange={(e) => setServiceName(e.target.value)} className={inputCls} placeholder="e.g. Haircut" />
+              </Field>
+              <Field label="Duration">
+                <Select value={duration} onChange={setDuration} options={DURATION_OPTIONS} />
+              </Field>
+            </div>
           </Section>
 
+          {/* When */}
           <Section title="When" hint="Pick a date and time. Reminders go out automatically 24 hours before.">
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Date" required>
-                <Popover open={dateOpen} onOpenChange={setDateOpen}>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      className={cn("w-full flex items-center justify-between px-3 py-2.5 bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg text-[14px] transition-colors focus:outline-none focus:border-[#e8502a]", date ? "text-white" : "text-[#6b6b6b]")}
-                    >
-                      {formatDateDisplay(date)}
-                      <CalendarIcon className="w-4 h-4 text-[#6b6b6b] shrink-0" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" className="w-auto p-0 bg-white border-[#e5e5e5] shadow-xl">
-                    <div style={calendarVars}>
-                      <Calendar
-                        mode="single"
-                        selected={date ? new Date(date + "T12:00:00") : undefined}
-                        onSelect={(d) => { if (d) { setDate(toDateStr(d)); setDateOpen(false); } }}
-                        disabled={{ before: todayStart }}
-                        autoFocus
-                        classNames={{ today: "ring-1 ring-[#e8502a] rounded-md" }}
-                      />
+            <Field label="Date" required>
+              {/* Horizontal date chips */}
+              <div className="flex gap-1.5 overflow-x-auto pb-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#2a2a2a]">
+                {dateChips.map(({ value, dow, day, month }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setDate(value)}
+                    className={cn(
+                      "flex-shrink-0 w-16 rounded-lg py-2.5 text-center cursor-pointer transition-all border",
+                      date === value
+                        ? "bg-[rgba(232,80,42,0.14)] border-[#e8502a] text-white"
+                        : "bg-[#0d0d0d] border-[#2a2a2a] text-white hover:border-[#353535]"
+                    )}
+                  >
+                    <div className={cn("font-mono text-[10.5px] tracking-[0.04em] uppercase", date === value ? "text-[#ff6a3d]" : "text-[#6b6b6b]")}>
+                      {dow}
                     </div>
-                  </PopoverContent>
-                </Popover>
-              </Field>
+                    <div className="text-[17px] font-semibold leading-tight mt-0.5">{day}</div>
+                    <div className="text-[10px] text-[#6b6b6b]">{month}</div>
+                  </button>
+                ))}
+              </div>
+            </Field>
 
+            <div className="grid grid-cols-2 gap-3 mt-1">
+              {/* Time */}
               <Field label="Time" required>
                 <div className="relative" ref={timeRef}>
                   <button
@@ -283,25 +348,21 @@ export default function NewAppointmentPage() {
                     onClick={() => setTimeOpen((o) => !o)}
                     className={cn(inputCls, "flex items-center justify-between text-left", time ? "text-white" : "text-[#6b6b6b]")}
                   >
-                    {time ? formatTimeDisplay(time) : "Pick a time"}
+                    {time ? selectedTimeLabel : "Pick a time"}
                     <Clock className="w-4 h-4 text-[#6b6b6b] shrink-0" />
                   </button>
-
                   {timeOpen && (
                     <div className="absolute z-10 mt-1 w-full bg-[#1f1f1f] border border-[#2a2a2a] rounded-xl shadow-2xl overflow-hidden">
-                      <ul
-                        ref={timeListRef}
-                        className="max-h-[240px] overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#3a3a3a] [&::-webkit-scrollbar-track]:bg-transparent"
-                      >
-                        {TIME_OPTIONS.map((t) => (
-                          <li key={t}>
+                      <ul ref={timeListRef} className="max-h-[220px] overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#3a3a3a]">
+                        {TIME_OPTIONS.map(({ value: tv, label: tl }) => (
+                          <li key={tv}>
                             <button
                               type="button"
-                              data-selected={time === t ? "true" : undefined}
-                              onClick={() => { setTime(t); setTimeOpen(false); }}
-                              className={cn("w-full text-left px-4 py-2 text-sm transition-colors cursor-pointer font-mono", time === t ? "bg-[#e8502a] text-white" : "text-[#a3a3a3] hover:bg-[#e8502a]/10 hover:text-white")}
+                              data-selected={time === tv ? "true" : undefined}
+                              onClick={() => { setTime(tv); setTimeOpen(false); }}
+                              className={cn("w-full text-left px-4 py-2 text-sm font-mono transition-colors", time === tv ? "bg-[#e8502a] text-white" : "text-[#a3a3a3] hover:bg-[#e8502a]/10 hover:text-white")}
                             >
-                              {formatTimeDisplay(t)}
+                              {tl}
                             </button>
                           </li>
                         ))}
@@ -310,40 +371,30 @@ export default function NewAppointmentPage() {
                   )}
                 </div>
               </Field>
+
+              {/* Timezone */}
+              <Field label="Time zone">
+                <Select value={timezone} onChange={setTimezone} options={TIMEZONES} />
+              </Field>
             </div>
           </Section>
 
+          {/* Notes */}
           <Section title="Notes" hint="Anything you want to remember. The client won't see this.">
             <Field label="Internal notes">
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className={`${inputCls} resize-none`}
-                rows={3}
-                placeholder="e.g. Client prefers shorter on the sides…"
-              />
+              <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputCls} resize-none`} rows={4} placeholder="e.g. Prefers shorter on the sides. Bring color reference photo." />
             </Field>
           </Section>
 
           {error && (
-            <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg mb-4">
-              {error}
-            </p>
+            <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-lg mb-4">{error}</p>
           )}
 
           <div className="flex gap-2.5 mt-6 pt-6 border-t border-[#2a2a2a]">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="h-[42px] px-5 text-[14px] border border-[#2a2a2a] text-[#a3a3a3] rounded-lg hover:bg-[#222222] hover:text-white transition-colors"
-            >
+            <button type="button" onClick={() => router.back()} className="h-[42px] px-5 text-[14px] border border-[#2a2a2a] text-[#a3a3a3] rounded-lg hover:bg-[#222222] hover:text-white transition-colors">
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex-1 h-[42px] px-5 text-[14px] bg-[#e8502a] text-white rounded-lg font-medium hover:bg-[#ff6a3d] disabled:opacity-50 transition-colors flex items-center justify-center gap-2 shadow-[0_6px_16px_-6px_rgba(232,80,42,0.5)]"
-            >
+            <button type="submit" disabled={saving} className="flex-1 h-[42px] px-5 text-[14px] bg-[#e8502a] text-white rounded-lg font-medium hover:bg-[#ff6a3d] disabled:opacity-50 transition-colors flex items-center justify-center gap-2 shadow-[0_6px_16px_-6px_rgba(232,80,42,0.5)]">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><polyline points="20 6 9 17 4 12"/></svg>
               {saving ? "Saving…" : "Schedule Appointment"}
             </button>
@@ -353,11 +404,11 @@ export default function NewAppointmentPage() {
         {/* Summary panel */}
         <aside className="sticky top-[90px] bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-[22px]">
           <h3 className="font-mono text-[13px] font-medium text-[#6b6b6b] uppercase tracking-[0.08em] mb-3.5">Summary</h3>
-
           <SummaryRow k="Client" v={selectedClient?.name ?? "—"} />
           <SummaryRow k="Service" v={serviceName || "—"} />
-          <SummaryRow k="Date" v={date ? formatDateDisplay(date) : "—"} />
-          <SummaryRow k="Time" v={time ? formatTimeDisplay(time) : "—"} />
+          <SummaryRow k="Duration" v={duration} />
+          <SummaryRow k="Date" v={date ? formatDateShort(date) : "—"} />
+          <SummaryRow k="Time" v={time ? selectedTimeLabel : "—"} />
 
           {selectedClient?.phone && (
             <div className="mt-4 bg-[#0d0d0d] border border-dashed border-[#353535] rounded-lg p-3.5 text-[12.5px] text-[#a3a3a3] leading-relaxed">
