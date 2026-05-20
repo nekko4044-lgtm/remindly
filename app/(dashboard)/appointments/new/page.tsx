@@ -139,14 +139,18 @@ export default function NewAppointmentPage() {
     const scheduledAt = new Date(`${date}T${time}`).toISOString();
     const { data: { user } } = await supabase.auth.getUser();
 
-    const { error: insertError } = await supabase.from("appointments").insert({
-      user_id: user!.id,
-      client_id: selectedClient.id,
-      service_name: serviceName.trim(),
-      scheduled_at: scheduledAt,
-      notes: notes.trim() || null,
-      status: "scheduled",
-    });
+    const { data: newApt, error: insertError } = await supabase
+      .from("appointments")
+      .insert({
+        user_id: user!.id,
+        client_id: selectedClient.id,
+        service_name: serviceName.trim(),
+        scheduled_at: scheduledAt,
+        notes: notes.trim() || null,
+        status: "scheduled",
+      })
+      .select("id")
+      .single();
 
     if (insertError) {
       setError(insertError.message);
@@ -154,6 +158,7 @@ export default function NewAppointmentPage() {
       return;
     }
 
+    // Email confirmation (best-effort)
     fetch("/api/send-confirmation", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -164,6 +169,15 @@ export default function NewAppointmentPage() {
         scheduledAt,
       }),
     }).catch(() => {});
+
+    // SMS confirmation (best-effort)
+    if (newApt?.id) {
+      fetch("/api/send-confirmation-sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appointmentId: newApt.id }),
+      }).catch(() => {});
+    }
 
     router.push("/appointments");
   }
