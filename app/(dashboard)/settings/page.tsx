@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase-client";
 import Link from "next/link";
+import { Calendar, CheckCircle, Bell } from "lucide-react";
 import type { User } from "@/lib/types";
 
 const inputCls =
@@ -276,12 +277,12 @@ export default function SettingsPage() {
             <h3 className="text-[14px] font-semibold text-white mb-4">How reminders work</h3>
             <div className="space-y-3">
               {[
-                { icon: "📅", text: "A reminder SMS is sent 24 hours before each appointment." },
-                { icon: "✅", text: "Clients reply YES to confirm or NO to cancel." },
-                { icon: "🔔", text: "A second reminder goes out 2 hours before." },
+                { icon: <Calendar className="text-[#e8502a] w-5 h-5" />, text: "A reminder SMS is sent 24 hours before each appointment." },
+                { icon: <CheckCircle className="text-[#e8502a] w-5 h-5" />, text: "Clients reply YES to confirm or NO to cancel." },
+                { icon: <Bell className="text-[#e8502a] w-5 h-5" />, text: "A second reminder goes out 2 hours before." },
               ].map(({ icon, text }) => (
                 <div key={text} className="flex items-start gap-3 text-[13px] text-[#a3a3a3]">
-                  <span className="text-[16px] shrink-0 mt-px">{icon}</span>
+                  <span className="shrink-0 mt-px">{icon}</span>
                   <span>{text}</span>
                 </div>
               ))}
@@ -291,10 +292,9 @@ export default function SettingsPage() {
           {/* Twilio phone */}
           <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-6">
             <h3 className="text-[14px] font-semibold text-white mb-1">Sender number</h3>
-            <p className="text-[12.5px] text-[#6b6b6b] mb-3">SMS reminders are sent from your Twilio number.</p>
-            <div className="font-mono text-[13px] text-[#a3a3a3] bg-[#0d0d0d] border border-[#2a2a2a] rounded-lg px-3 py-2">
-              Configured via TWILIO_PHONE_NUMBER
-            </div>
+            <p className="text-[12.5px] text-[#6b6b6b] mb-3">
+              SMS reminders are sent from your registered Twilio number. To change it, update <code className="font-mono text-[#e8502a] text-[11px]">TWILIO_PHONE_NUMBER</code> in your environment variables.
+            </p>
           </div>
         </div>
       </div>
