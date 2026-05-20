@@ -14,11 +14,14 @@ export async function GET(req: NextRequest) {
   const supabase = createClient();
   const now = new Date();
 
-  const window24hStart = new Date(now.getTime() + 23 * 60 * 60 * 1000);
-  const window24hEnd = new Date(now.getTime() + 25 * 60 * 60 * 1000);
+  // Wide windows cover all US timezones (UTC-5 to UTC-8) since appointments
+  // are stored in local time without timezone info. Duplicate-send protection
+  // comes from the reminder_24h_sent / reminder_2h_sent flags.
+  const window24hStart = new Date(now.getTime() + 20 * 60 * 60 * 1000);
+  const window24hEnd = new Date(now.getTime() + 28 * 60 * 60 * 1000);
 
-  const window2hStart = new Date(now.getTime() + 1.5 * 60 * 60 * 1000);
-  const window2hEnd = new Date(now.getTime() + 2.5 * 60 * 60 * 1000);
+  const window2hStart = new Date(now.getTime() + 0.5 * 60 * 60 * 1000);
+  const window2hEnd = new Date(now.getTime() + 3.5 * 60 * 60 * 1000);
 
   const [{ data: due24h }, { data: due2h }] = await Promise.all([
     supabase
