@@ -163,7 +163,7 @@ export default function SettingsPage() {
 
       <div className="grid gap-6 items-start grid-cols-1 md:grid-cols-[1.4fr_1fr] max-w-2xl md:max-w-none mx-auto md:mx-0 w-full">
         {/* Left: form */}
-        <form onSubmit={handleSave} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-7">
+        <form onSubmit={handleSave} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-7 min-w-0">
 
           <Section title="Business" hint="Your business name appears in reminder messages sent to clients.">
             <Field label="Business Name">
@@ -252,7 +252,7 @@ export default function SettingsPage() {
         </form>
 
         {/* Right panel */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 min-w-0">
           {/* Subscription */}
           <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-6">
             <h3 className="text-[14px] font-semibold text-white mb-4">Subscription</h3>

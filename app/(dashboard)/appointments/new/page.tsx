@@ -225,7 +225,7 @@ export default function NewAppointmentPage() {
 
       <div className="grid gap-6 items-start grid-cols-1 lg:grid-cols-[1.4fr_1fr] max-w-2xl lg:max-w-none mx-auto lg:mx-0 w-full">
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-7">
+        <form onSubmit={handleSubmit} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-7 min-w-0">
 
           {/* Client */}
           <Section title="Client" hint="Pick from your existing clients, or add a new one.">
@@ -309,7 +309,7 @@ export default function NewAppointmentPage() {
           {/* When */}
           <Section title="When" hint="Pick a date and time. Reminders go out automatically 24 hours before.">
             <Field label="Date" required>
-              <div className="relative flex items-center gap-1">
+              <div className="relative flex items-center gap-1 min-w-0">
                 {/* Left arrow */}
                 <button
                   type="button"
@@ -403,7 +403,7 @@ export default function NewAppointmentPage() {
         </form>
 
         {/* Summary panel */}
-        <aside className="sticky top-[90px] bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-[22px]">
+        <aside className="sticky top-[90px] bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-[22px] min-w-0">
           <h3 className="font-mono text-[13px] font-medium text-[#6b6b6b] uppercase tracking-[0.08em] mb-3.5">Summary</h3>
           <SummaryRow k="Client" v={selectedClient?.name ?? "—"} />
           <SummaryRow k="Service" v={serviceName || "—"} />
