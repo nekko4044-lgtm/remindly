@@ -223,7 +223,7 @@ export default function NewAppointmentPage() {
         </button>
       </div>
 
-      <div className="grid gap-6 items-start grid-cols-1 lg:grid-cols-[1.4fr_1fr]">
+      <div className="grid gap-6 items-start grid-cols-1 lg:grid-cols-[1.4fr_1fr] max-w-2xl lg:max-w-none mx-auto lg:mx-0 w-full">
         {/* Form */}
         <form onSubmit={handleSubmit} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-7">
 

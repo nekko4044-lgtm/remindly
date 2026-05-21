@@ -161,7 +161,7 @@ export default function SettingsPage() {
         <p className="text-[14px] text-[#a3a3a3] mt-1">Manage your business profile and notification preferences.</p>
       </div>
 
-      <div className="grid gap-6 items-start grid-cols-1 md:grid-cols-[1.4fr_1fr]">
+      <div className="grid gap-6 items-start grid-cols-1 md:grid-cols-[1.4fr_1fr] max-w-2xl md:max-w-none mx-auto md:mx-0 w-full">
         {/* Left: form */}
         <form onSubmit={handleSave} className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-[14px] p-7">
 
