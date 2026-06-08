@@ -1,65 +1,31 @@
 # NoShow
 
-**Stop losing clients to no-shows.** Automated SMS & Email appointment reminders for small service businesses — salons, trainers, dentists, consultants.
+> Previously shipped as **Remindly** · Live at **[noshow.pro](https://noshow.pro)**
 
-## What it does
-
-- Sends SMS reminders 24h and 2h before each appointment (Twilio)
-- Sends email confirmations with Google Calendar links (Resend)
-- Clients reply YES to confirm or NO to cancel — status updates automatically
-- Full appointment management dashboard with filters and status tracking
+Appointment reminder SaaS for small service businesses (salons, barbershops, trainers, clinics). Sends automated SMS reminders 24 h before each appointment; clients reply YES/NO to confirm or cancel.
 
 ## Stack
 
-| Layer | Tech |
-|---|---|
-| Frontend | Next.js 14 (App Router) + Tailwind CSS |
-| Database + Auth | Supabase (PostgreSQL + RLS) |
-| SMS | Twilio |
-| Email | Resend |
-| Payments | Stripe |
-| Deploy | Vercel |
+- **Next.js 14** (App Router, TypeScript)
+- **Supabase** — auth, Postgres database
+- **Stripe** — subscriptions (Solo / Business / Pro plans)
+- **Twilio** — outbound SMS reminders + inbound webhook for client replies
+- **Resend** — transactional email confirmations
+- **Tailwind CSS** — dark UI (`#111111` / `#e8502a`)
 
-## Getting started
+## Features
+
+- Dashboard with stat cards, no-show rate chart, and today's appointment table
+- Client CRM — add, edit, search clients
+- New appointment form — date chips, time picker, 60-day look-ahead
+- Automatic SMS reminder 24 h before + confirmation on client reply
+- Settings — business name, timezone, custom SMS template
+- Billing portal via Stripe Customer Portal
+
+## Local setup
 
 ```bash
+cp .env.example .env.local   # fill in Supabase, Stripe, Twilio, Resend keys
 npm install
-cp .env.local.example .env.local   # fill in your keys
 npm run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-## Environment variables
-
-| Variable | Description |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-side only |
-| `TWILIO_ACCOUNT_SID` | Twilio account SID |
-| `TWILIO_AUTH_TOKEN` | Twilio auth token |
-| `TWILIO_PHONE_NUMBER` | Your Twilio phone number |
-| `RESEND_API_KEY` | Resend API key |
-| `STRIPE_SECRET_KEY` | Stripe secret key |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
-| `STRIPE_PRICE_SOLO` | Stripe Price ID for Solo plan |
-| `STRIPE_PRICE_BUSINESS` | Stripe Price ID for Business plan |
-| `STRIPE_PRICE_PRO` | Stripe Price ID for Pro plan |
-| `CRON_SECRET` | Secret for protecting the cron endpoint |
-
-## Pricing
-
-| Plan | Price | Clients |
-|---|---|---|
-| Solo | $19/mo | Up to 50 |
-| Business | $49/mo | Up to 200 |
-| Pro | $99/mo | Unlimited |
-
-## Database
-
-Run the migration in `supabase/migrations/` via the Supabase SQL Editor to create all tables (users, clients, appointments, reminder_logs) with RLS enabled.
-
-## Deployment
-
-Deploy to Vercel. Add all env vars in the Vercel dashboard. The cron job at `/api/send-reminders` runs daily at 8am UTC.
